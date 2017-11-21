@@ -2,7 +2,9 @@ package main
 
 import (
 	"Termify/auth"
+	"Termify/config"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"os/exec"
@@ -12,19 +14,14 @@ import (
 )
 
 const (
-	port        = ":8000"
-	startupText = "termify"
+	port                  = ":8000"
+	startupText           = "termify"
+	permissionGrantedText = "\nYou have successfully logged in.\n\n"
+	parseTemplateError    = "An error occurred when trying to parse a template"
+	grantAccessError      = "A Spotfiy permission error occurred. Try logging in again. "
 )
 
-// AccessToken is a token response returned after a Spotify authorization
-// request is made.
-type AccessToken struct {
-	Token        string `json:"access_token"`
-	Type         string `json:"token_type"`
-	Scope        string `json:"scope"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn    int    `json:"expires_in"`
-}
+var apiInformation = config.APIInformation{}
 
 func startup(text string) {
 	cmd := exec.Command("clear")
@@ -34,14 +31,28 @@ func startup(text string) {
 }
 
 func callbackHandler(w http.ResponseWriter, r *http.Request) {
-	color.Cyan(fmt.Sprint("\nSpotify has been granted access to your profile. Welcome to Termify.\n\n"))
-	fmt.Fprintf(w, "<h1>Spotify has been granted access</h1>")
+	apiInformation.SetTokenFetchRequirements(
+		r.URL.Query().Get("code"),
+		r.URL.Query().Get("state"),
+		r.URL.Query().Get("error"))
+
+	if apiInformation.AccessErr != "" {
+		color.Red(fmt.Sprint(grantAccessError))
+		os.Exit(1)
+	} else {
+		color.HiBlue(fmt.Sprint(permissionGrantedText))
+		apiInformation.SetAccessToken(auth.FetchSpotifyToken(apiInformation.AccessCode))
+
+		t, _ := template.ParseFiles("index.html")
+		t.Execute(w, nil)
+	}
 }
 
 func main() {
+	http.HandleFunc("/callback", callbackHandler)
+
 	startup(startupText)
 	auth.Authorize()
+	defer http.ListenAndServe(port, nil)
 
-	http.HandleFunc("/callback", callbackHandler)
-	http.ListenAndServe(port, nil)
 }
