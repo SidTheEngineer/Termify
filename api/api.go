@@ -1,10 +1,10 @@
-package config
+package api
 
 import "Termify/auth"
 
-// APIInformation is a type struct that is used to hold useful information
+// Config is a type struct that is used to hold useful information
 // that can be used throughout the application and the Spotify Web API.
-type APIInformation struct {
+type Config struct {
 	// Params needed to fetch a Spotify access token after login/permission grant.
 	AccessCode string
 	ReqState   string
@@ -16,14 +16,14 @@ type APIInformation struct {
 
 // SetTokenFetchRequirements sets the proper fields needed to fetch an
 // access token from Spotify after login/permission grant.
-func (sc *APIInformation) SetTokenFetchRequirements(code, state, err string) {
-	sc.AccessCode = code
-	sc.ReqState = state
-	sc.AccessErr = err
+func (info *Config) SetTokenFetchRequirements(code, state, err string) {
+	info.AccessCode = code
+	info.ReqState = state
+	info.AccessErr = err
 }
 
 // SetAccessToken sets the SpotifyConfig access token to be used throughout
 // Spoitfy Web API endpoints.
-func (sc *APIInformation) SetAccessToken(t *auth.AccessToken) {
-	sc.AccessToken = t
+func (info *Config) SetAccessToken(token *auth.AccessToken) {
+	info.AccessToken = token
 }
