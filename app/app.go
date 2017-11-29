@@ -26,11 +26,6 @@ type View struct {
 	choices []string
 }
 
-// NewView is a View constructor that returns a pointer to a View
-func (config *Config) NewView(name string) *View {
-	return &View{name, ViewTypes[name].choices}
-}
-
 // Print prints a View's informatio to the console.
 func (v View) Print() {
 	color.Cyan(banner.PrintS(v.name))
@@ -50,4 +45,9 @@ func Init() {
 			"Devices",
 			"Categories",
 			"Featured Playlists"}}
+}
+
+// NewView is a View constructor that returns a pointer to a View
+func NewView(name string) *View {
+	return &View{name, ViewTypes[name].choices}
 }

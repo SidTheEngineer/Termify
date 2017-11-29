@@ -54,7 +54,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server) {
 		apiConfig.SetAccessToken(auth.FetchSpotifyToken(apiConfig.AccessCode))
 
 		// The first view that needs to display is the browse view.
-		view := appConfig.NewView("browse")
+		view := app.NewView("browse")
 
 		t, _ := template.ParseFiles("index.html")
 		t.Execute(w, nil)
