@@ -11,7 +11,7 @@ type Config struct {
 	AccessErr  string
 
 	// Access token to be returned via fetch after login/permission grant/
-	AccessToken *auth.AccessToken
+	AccessToken auth.AccessToken
 }
 
 // SetTokenFetchRequirements sets the proper fields needed to fetch an
@@ -24,6 +24,6 @@ func (info *Config) SetTokenFetchRequirements(code, state, err string) {
 
 // SetAccessToken sets the SpotifyConfig access token to be used throughout
 // Spoitfy Web API endpoints.
-func (info *Config) SetAccessToken(token *auth.AccessToken) {
+func (info *Config) SetAccessToken(token auth.AccessToken) {
 	info.AccessToken = token
 }

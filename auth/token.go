@@ -29,7 +29,7 @@ type AccessToken struct {
 // the authorization code that comes back upon successfully logging
 // in and granting Termify access to one's Spotify information. This
 // token is then used to make calls to the Spotify API.
-func FetchSpotifyToken(code string) *AccessToken {
+func FetchSpotifyToken(code string) AccessToken {
 	client := &http.Client{}
 	accessToken := AccessToken{}
 	req, err := http.NewRequest("POST", tokenURL, nil)
@@ -46,7 +46,7 @@ func FetchSpotifyToken(code string) *AccessToken {
 
 	json.Unmarshal(bytes, &accessToken)
 
-	return &accessToken
+	return accessToken
 }
 
 func addTokenQueryParams(req *http.Request, code string) {
