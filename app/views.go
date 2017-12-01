@@ -9,10 +9,6 @@ import (
 
 const browse = "browse"
 
-// ViewTypes holds the types of views and their choices that users
-// can choose from.
-var ViewTypes = make(map[string]*View)
-
 // View is a struct that contains a view's information and behaviors, such
 // as the type of view it is, and it being displayed in the console.
 type View struct {
