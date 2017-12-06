@@ -26,6 +26,16 @@ func (v View) Print() {
 	fmt.Printf("\n\n")
 }
 
+// Name returns the name of the specified view.
+func (v View) Name() string {
+	return v.name
+}
+
+// Choices returns the choices associated with the specified view.
+func (v View) Choices() []Choice {
+	return v.choices
+}
+
 // NewBrowseView is a View constructor that returns a browse menu view (the main menu)
 func NewBrowseView() View {
 	return View{

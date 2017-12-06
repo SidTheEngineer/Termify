@@ -8,6 +8,21 @@ type Choice struct {
 	apiMethod string
 }
 
+// Name returns the name of the specified Choice.
+func (c Choice) Name() string {
+	return c.name
+}
+
+// APIRoute returns the API route that corresponds to the specified Choice.
+func (c Choice) APIRoute() string {
+	return c.apiRoute
+}
+
+// APIMethod returns the API method that corresponds to the specified Choice/API route.
+func (c Choice) APIMethod() string {
+	return c.apiMethod
+}
+
 // Devices is the Spotify devices endpoint choice, which returns a
 // list of Spotify device objects.
 // https://developer.spotify.com/web-api/get-a-users-available-devices/
