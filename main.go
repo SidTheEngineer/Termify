@@ -57,15 +57,14 @@ func startUILoop() {
 		bytes, _ := ioutil.ReadAll(response.Body)
 
 		var responseObject interface{}
-
 		jsonErr := json.Unmarshal(bytes, &responseObject)
 
 		if jsonErr != nil {
 			fmt.Println(err)
 		}
 
-		fmt.Println(responseObject)
-
+		jsonMap := responseObject.(map[string]interface{})
+		api.HandleJSONResponse(jsonMap, selectedChoice.ResponseType())
 	}
 }
 

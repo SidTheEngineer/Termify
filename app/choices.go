@@ -13,6 +13,7 @@ type Choice struct {
 	name         string
 	apiRoute     string
 	apiMethod    string
+	responseType string
 }
 
 // Name returns the name of the specified Choice.
@@ -28,6 +29,12 @@ func (c Choice) APIRoute() string {
 // APIMethod returns the API method that corresponds to the specified Choice/API route.
 func (c Choice) APIMethod() string {
 	return c.apiMethod
+}
+
+// ResponseType returns a user selected Choice's response object type from the Spotify
+// API as a string.
+func (c Choice) ResponseType() string {
+	return c.responseType
 }
 
 // CreateAPIRequest returns an http request pointer for the user selected
@@ -63,9 +70,10 @@ func (c Choice) SendAPIRequest(req *http.Request) *http.Response {
 // list of Spotify device objects.
 // https://developer.spotify.com/web-api/get-a-users-available-devices/
 var Devices = Choice{
-	name:      "Devices",
-	apiRoute:  "https://api.spotify.com/v1/me/player/devices",
-	apiMethod: "GET",
+	name:         "Devices",
+	apiRoute:     "https://api.spotify.com/v1/me/player/devices",
+	apiMethod:    "GET",
+	responseType: "devices",
 }
 
 // Categories is a Spotify categories endpoint choice, which returns a
