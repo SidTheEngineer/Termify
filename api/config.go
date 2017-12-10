@@ -1,6 +1,8 @@
 package api
 
-import "Termify/auth"
+import (
+	"Termify/auth"
+)
 
 // Config is a type struct that is used to hold useful information
 // that can be used throughout the application and the Spotify Web API.

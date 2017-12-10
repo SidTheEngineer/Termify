@@ -1,11 +1,18 @@
 package app
 
+import (
+	"Termify/auth"
+	"fmt"
+	"net/http"
+	"os"
+)
+
 // Choice is what a user selects from the view menu, each of which have their own
 // Spotify api routes that they hit upon selection.
 type Choice struct {
-	name      string
-	apiRoute  string
-	apiMethod string
+	name         string
+	apiRoute     string
+	apiMethod    string
 }
 
 // Name returns the name of the specified Choice.
@@ -21,6 +28,35 @@ func (c Choice) APIRoute() string {
 // APIMethod returns the API method that corresponds to the specified Choice/API route.
 func (c Choice) APIMethod() string {
 	return c.apiMethod
+}
+
+// CreateAPIRequest returns an http request pointer for the user selected
+// choice object that is passed in.
+func (c Choice) CreateAPIRequest(t auth.AccessToken) *http.Request {
+	req, err := http.NewRequest(c.APIMethod(), c.APIRoute(), nil)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	req.Header.Add("Authorization", "Bearer "+t.Token)
+	req.Header.Add("Accept", "application/json")
+	return req
+}
+
+// SendAPIRequest sends a request for an API request object created from
+// a user selected Choice, and returns a pointer to an http Response.
+func (c Choice) SendAPIRequest(req *http.Request) *http.Response {
+	client := http.Client{}
+	resp, err := client.Do(req)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	return resp
 }
 
 // Devices is the Spotify devices endpoint choice, which returns a

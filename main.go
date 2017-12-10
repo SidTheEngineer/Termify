@@ -7,7 +7,9 @@ import (
 	"Termify/helpers"
 	"Termify/server"
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 
@@ -16,10 +18,11 @@ import (
 )
 
 const (
-	invalidChoiceError     = "Invalid choice. Try again from the numbered choices above."
-	stringConverstionError = "An error ocurred when parsing the text that was inputted. Try again."
-	startupText            = "termify"
-	exitCode               = 9
+	invalidChoiceError    = "Invalid choice. Try again from the numbered choices above."
+	stringConversionError = "An error ocurred when parsing the text that was inputted. Try again."
+	startupText           = "termify"
+	// TODO: Set exit code programatically (could be the last choice in the view choice list).
+	exitCode = 9
 )
 
 var (
@@ -39,16 +42,30 @@ func startUILoop() {
 		inputChoice, err := strconv.Atoi(text)
 
 		if err != nil {
-			color.Red(fmt.Sprint(stringConverstionError))
+			color.Red(fmt.Sprint(stringConversionError))
 			continue
-		} else if inputChoice > len(appConfig.CurrentView().Choices())-1 {
+		} else if inputChoice != exitCode && inputChoice > len(appConfig.CurrentView().Choices())-1 {
 			color.Red(fmt.Sprint(invalidChoiceError))
 			continue
 		} else if inputChoice == exitCode {
 			return
 		}
 
-		fmt.Println(appConfig.CurrentView().Choices()[inputChoice].Name())
+		selectedChoice := appConfig.CurrentView().Choices()[inputChoice]
+		apiReq := selectedChoice.CreateAPIRequest(apiConfig.AccessToken)
+		response := selectedChoice.SendAPIRequest(apiReq)
+		bytes, _ := ioutil.ReadAll(response.Body)
+
+		var responseObject interface{}
+
+		jsonErr := json.Unmarshal(bytes, &responseObject)
+
+		if jsonErr != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println(responseObject)
+
 	}
 }
 

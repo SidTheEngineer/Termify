@@ -12,6 +12,7 @@ import (
 const (
 	authURL         = "https://accounts.spotify.com/authorize"
 	authRedirectURI = "http://localhost:8000/callback"
+	scopes          = "user-read-playback-state"
 )
 
 // Authorize sends a request to Spotify's authorize URL with the
@@ -50,5 +51,6 @@ func addAuthQueryParams(req *http.Request) {
 	q.Add("response_type", "code")
 	q.Add("redirect_uri", authRedirectURI)
 	q.Add("state", helpers.GenerateRandomString(32))
+	q.Add("scope", scopes)
 	req.URL.RawQuery = q.Encode()
 }
