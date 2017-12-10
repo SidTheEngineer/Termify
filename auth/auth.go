@@ -12,7 +12,7 @@ import (
 const (
 	authURL         = "https://accounts.spotify.com/authorize"
 	authRedirectURI = "http://localhost:8000/callback"
-	scopes          = "user-read-playback-state"
+	scopes          = "user-read-playback-state user-modify-playback-state"
 )
 
 // Authorize sends a request to Spotify's authorize URL with the

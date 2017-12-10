@@ -2,6 +2,7 @@ package api
 
 import (
 	"Termify/auth"
+	"Termify/ui"
 )
 
 // Config is a type struct that is used to hold useful information
@@ -14,6 +15,10 @@ type Config struct {
 
 	// Access token to be returned via fetch after login/permission grant/
 	AccessToken auth.AccessToken
+}
+
+type Response interface {
+	ResponseView() ui.View
 }
 
 // SetTokenFetchRequirements sets the proper fields needed to fetch an
