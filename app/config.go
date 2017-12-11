@@ -49,10 +49,9 @@ func InitUI(appConfig Config, uiConfig ui.Config) {
 	}
 	defer tui.Close()
 
-	tui.Body.AddRows(tui.NewRow(tui.NewCol(12, 0, ui.CreateWelcomeParagraph())))
-
-	tui.Body.Align()
-	tui.Render(tui.Body)
+	uiConfig.Render(ui.View{
+		Name: "welcome",
+	})
 
 	tui.Handle("/sys/kbd/q", func(tui.Event) {
 		tui.StopLoop()
@@ -80,40 +79,19 @@ func startServer(srv *http.Server) {
 	srv.ListenAndServe()
 }
 
-func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, apiConfig *Config, uiConfig *ui.Config) {
+func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, appConfig *Config, uiConfig *ui.Config) {
 	defer s.Close()
 
-	apiConfig.SetTokenFetchRequirements(
+	appConfig.SetTokenFetchRequirements(
 		r.URL.Query().Get("code"),
 		r.URL.Query().Get("state"),
 		r.URL.Query().Get("error"))
 
-	if apiConfig.AccessErr != "" {
+	if appConfig.AccessErr != "" {
 		color.Red(fmt.Sprint(grantAccessError))
 		os.Exit(1)
 	} else {
-		apiConfig.SetAccessToken(auth.FetchSpotifyToken(apiConfig.AccessCode))
-
-		choiceList := tui.NewList()
-		choiceList.Height = 30
-		choiceList.BorderLabel = "Termify"
-		choiceList.BorderFg = tui.ColorCyan
-		choiceList.Items = []string{
-			ui.PlayChoice().Name,
-			ui.PauseChoice().Name,
-		}
-
-		tui.Body.Rows = tui.Body.Rows[:0]
-		tui.Body.AddRows(tui.NewRow(tui.NewCol(12, 0, ui.CreateInitialChoiceList())))
-		tui.Body.Align()
-		tui.Render(tui.Body)
-		view := ui.View{
-			Name: "playback",
-			Choices: []ui.Choice{
-				ui.PlayChoice(),
-				ui.PauseChoice(),
-			},
-		}
-		uiConfig.SetCurrentView(view)
+		appConfig.SetAccessToken(auth.FetchSpotifyToken(appConfig.AccessCode))
+		uiConfig.Render(ui.NewPlaybackView())
 	}
 }

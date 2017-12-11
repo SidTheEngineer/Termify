@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	browse      = "browse"
+	playback    = "playback"
 	welcomeText = "Welcome to Termify!\n\nL - Start Spotify authorization\nQ - Exit"
 )
 
@@ -72,14 +72,19 @@ func (v *Config) CurrentView() View {
 	return v.currentView
 }
 
-// SetCurrentView updates the current view of Termify. It does not necessarily
-// mean that the view is being disiplayed, however.
-func (v *Config) SetCurrentView(newView View) {
+// Render updates the current view of Termify.
+func (v *Config) Render(newView View) {
+	resetRows()
+	switch newView.Name {
+	case playback:
+		mountRow(playbackComponent())
+	default:
+		mountRow(welcomeComponent())
+	}
 	v.currentView = newView
 }
 
-// CreateWelcomeParagraph returns the initial welcome Par upon app start.
-func CreateWelcomeParagraph() *tui.Par {
+func welcomeComponent() *tui.Par {
 	welcomePar := tui.NewPar(welcomeText)
 	welcomePar.Height = 10
 	welcomePar.Border = false
@@ -90,17 +95,13 @@ func CreateWelcomeParagraph() *tui.Par {
 	return welcomePar
 }
 
-// CreateInitialChoiceList returns the initial List of choices to make
-// upon app start.
-func CreateInitialChoiceList() *tui.List {
-	choiceList := tui.NewList()
-	choiceList.Border = true
-	choiceList.BorderFg = tui.ColorGreen
-	choiceList.Height = 50
-	choiceList.Items = []string{
-		PlayChoice().Name,
-		PauseChoice().Name,
-	}
+// ResetRows resets the current ui rows that are being displayed
+func resetRows() {
+	tui.Body.Rows = tui.Body.Rows[:0]
+}
 
-	return choiceList
+func mountRow(component tui.GridBufferer) {
+	tui.Body.AddRows(tui.NewCol(12, 0, component))
+	tui.Body.Align()
+	tui.Render(tui.Body)
 }
