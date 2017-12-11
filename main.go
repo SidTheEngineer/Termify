@@ -135,7 +135,7 @@ func initUI() {
 	})
 
 	tui.Handle("/sys/kbd/l", func(tui.Event) {
-		auth.Authorize()
+		go auth.Authorize()
 		srv := createServer(&apiConfig, &appConfig)
 		startServer(srv)
 	})
