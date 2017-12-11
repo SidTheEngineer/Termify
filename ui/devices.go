@@ -1,9 +1,4 @@
-package api
-
-import (
-	"Termify/helpers"
-	"Termify/ui"
-)
+package ui
 
 // Device is a response object from respective Spotify API endpoints.
 type Device struct {
@@ -13,18 +8,18 @@ type Device struct {
 	name          string
 	deviceType    string
 	volumePercent *float64
-	responseView  ui.View
+	responseView  View
 }
 
 // ResponseView gets the view for a specified Response object
-func (d Device) ResponseView() ui.View {
+func (d Device) ResponseView() View {
 	return d.responseView
 }
 
 // DevicesChoice returns a Choice corresponding to the Spotify "devices" endpoint.
 // https://developer.spotify.com/web-api/get-a-users-available-devices/
-func DevicesChoice() ui.Choice {
-	return ui.Choice{
+func DevicesChoice() Choice {
+	return Choice{
 		Name:         "Devices",
 		APIRoute:     "https://api.spotify.com/v1/me/player/devices",
 		APIMethod:    "GET",
@@ -58,11 +53,7 @@ func handleDevicesEndpointResponse(jsonMap map[string]interface{}) {
 			name:          jsonFieldMap["name"].(string),
 			deviceType:    jsonFieldMap["type"].(string),
 			volumePercent: volumePercentVal,
-			responseView:  ui.View{},
+			responseView:  View{},
 		})
 	}
-
-	// After retrieving the response data
-	helpers.ClearTerm()
-	deviceList[0].ResponseView().Print()
 }

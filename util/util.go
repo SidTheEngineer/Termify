@@ -1,9 +1,7 @@
-package helpers
+package util
 
 import (
 	"math/rand"
-	"os"
-	"os/exec"
 )
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -15,12 +13,4 @@ func GenerateRandomString(strLen int) string {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
-}
-
-// ClearTerm runs the "clear" command, clearing out the current
-// terminal window where Termify is running.
-func ClearTerm() {
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
 }
