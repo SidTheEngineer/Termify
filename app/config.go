@@ -1,12 +1,12 @@
 package app
 
 import (
-	"Termify/auth"
-	"Termify/ui"
 	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/SidTheEngineer/Termify/auth"
+	"github.com/SidTheEngineer/Termify/ui"
 	"github.com/fatih/color"
 	tui "github.com/gizak/termui"
 )

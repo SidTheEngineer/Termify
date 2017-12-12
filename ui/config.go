@@ -1,10 +1,11 @@
 package ui
 
 import (
-	"Termify/auth"
 	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/SidTheEngineer/Termify/auth"
 
 	tui "github.com/gizak/termui"
 )

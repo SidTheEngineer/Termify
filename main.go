@@ -1,9 +1,10 @@
 package main
 
 import (
-	"Termify/app"
-	"Termify/ui"
 	"fmt"
+
+	"github.com/SidTheEngineer/Termify/app"
+	"github.com/SidTheEngineer/Termify/ui"
 )
 
 var (

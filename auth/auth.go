@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"Termify/util"
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -9,6 +8,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/SidTheEngineer/Termify/util"
 	"github.com/skratchdot/open-golang/open"
 )
 
