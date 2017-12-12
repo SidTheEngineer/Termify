@@ -43,7 +43,7 @@ func (info *Config) SetAccessToken(token auth.AccessToken) {
 }
 
 // InitUI initializes the UI and attaches the appropriate handlers.
-func InitUI(appConfig Config, uiConfig ui.Config) {
+func InitUI(appConfig *Config, uiConfig *ui.Config) {
 	if err := tui.Init(); err != nil {
 		panic(err)
 	}
@@ -59,7 +59,7 @@ func InitUI(appConfig Config, uiConfig ui.Config) {
 
 	tui.Handle("/sys/kbd/l", func(tui.Event) {
 		go auth.Authorize()
-		srv := createServer(&appConfig, &uiConfig)
+		srv := createServer(appConfig, uiConfig)
 		startServer(srv)
 	})
 

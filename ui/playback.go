@@ -44,5 +44,10 @@ func playbackComponent() *tui.List {
 		pauseChoice().Name,
 	}
 
+	tui.ResetHandlers()
+	tui.Handle("/sys/kbd/q", func(tui.Event) {
+		tui.StopLoop()
+	})
+
 	return choiceList
 }

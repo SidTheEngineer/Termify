@@ -1,7 +1,10 @@
 package main
 
-import "Termify/app"
-import "Termify/ui"
+import (
+	"Termify/app"
+	"Termify/ui"
+	"fmt"
+)
 
 var (
 	appConfig = app.Config{}
@@ -49,5 +52,6 @@ var (
 // }
 
 func main() {
-	app.InitUI(appConfig, uiConfig)
+	app.InitUI(&appConfig, &uiConfig)
+	fmt.Printf("%+v\n", uiConfig.CurrentView())
 }
