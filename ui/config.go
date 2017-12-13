@@ -44,6 +44,10 @@ type Choice struct {
 	ResponseType string
 }
 
+type Component interface {
+	Render()
+}
+
 // SetAccessToken sets the SpotifyConfig access token to be used throughout
 // Spoitfy Web API endpoints.
 func (c *Config) SetAccessToken(token auth.AccessToken) {
