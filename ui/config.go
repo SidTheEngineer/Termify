@@ -108,7 +108,7 @@ func mountRow(component tui.GridBufferer) {
 	test.Border = true
 	tui.Body.AddRows(tui.NewRow(
 		tui.NewCol(2, 0, component),
-		tui.NewCol(8, 0, test),
+		tui.NewCol(10, 0, test),
 	))
 	tui.Body.Align()
 	tui.Render(tui.Body)
