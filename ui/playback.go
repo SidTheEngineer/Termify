@@ -21,7 +21,7 @@ func NewPlaybackView() View {
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
 func playChoice() Choice {
 	return Choice{
-		Name:         "1 - Play",
+		Name:         "[ 1 ] - Play",
 		APIRoute:     "https://api.spotify.com/v1/me/player/play",
 		APIMethod:    "PUT",
 		ResponseType: "",
@@ -31,7 +31,7 @@ func playChoice() Choice {
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/pause-a-users-playback/
 func pauseChoice() Choice {
 	return Choice{
-		Name:         "2 - Pause",
+		Name:         "[ 2 ] - Pause",
 		APIRoute:     "https://api.spotify.com/v1/me/player/pause",
 		APIMethod:    "PUT",
 		ResponseType: "",
@@ -41,7 +41,7 @@ func pauseChoice() Choice {
 // https://developer.spotify.com/web-api/skip-users-playback-to-next-track/
 func skipChoice() Choice {
 	return Choice{
-		Name:         "3 - Skip",
+		Name:         "[ 3 ] - Next",
 		APIRoute:     "https://api.spotify.com/v1/me/player/next",
 		APIMethod:    "POST",
 		ResponseType: "",
@@ -51,7 +51,7 @@ func skipChoice() Choice {
 // https://developer.spotify.com/web-api/skip-users-playback-to-previous-track/
 func backChoice() Choice {
 	return Choice{
-		Name:         "4 - Back",
+		Name:         "[ 4 ] - Previous",
 		APIRoute:     "https://api.spotify.com/v1/me/player/previous",
 		APIMethod:    "POST",
 		ResponseType: "",
@@ -62,9 +62,7 @@ func playbackComponent(uiConfig *Config) *tui.List {
 	choiceList := tui.NewList()
 	choiceList.Border = true
 	choiceList.BorderFg = tui.ColorGreen
-	choiceList.Height = 50
-	choiceList.PaddingTop = 2
-	choiceList.PaddingLeft = 5
+	choiceList.Height = 10
 	choiceList.Items = []string{
 		ExitText,
 		NewLine,

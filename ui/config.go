@@ -12,7 +12,7 @@ import (
 
 const (
 	// ExitText describes global exit text for the app
-	ExitText = "Q - Exit"
+	ExitText = "[ Q ] - Exit"
 
 	// NewLine can be used in termui lists and other components to be an "empty" text row
 	NewLine = "\n"
@@ -103,7 +103,13 @@ func resetRows() {
 }
 
 func mountRow(component tui.GridBufferer) {
-	tui.Body.AddRows(tui.NewCol(12, 0, component))
+	test := tui.NewPar("this is a test component")
+	test.Height = 10
+	test.Border = true
+	tui.Body.AddRows(tui.NewRow(
+		tui.NewCol(2, 0, component),
+		tui.NewCol(8, 0, test),
+	))
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }
