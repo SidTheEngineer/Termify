@@ -2,7 +2,7 @@ package ui
 
 import tui "github.com/gizak/termui"
 
-func welcomeComponent() *tui.Par {
+func welcomeComponent(uiConfig *Config) *tui.Par {
 	welcomePar := tui.NewPar(welcomeText)
 	welcomePar.Height = 10
 	welcomePar.Border = false

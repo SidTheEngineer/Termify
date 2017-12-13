@@ -11,14 +11,21 @@ import (
 )
 
 const (
+	// ExitText describes global exit text for the app
+	ExitText = "Q - Exit"
+
+	// NewLine can be used in termui lists and other components to be an "empty" text row
+	NewLine = "\n"
+
 	playback    = "playback"
-	welcomeText = "Welcome to Termify!\n\nL - Start Spotify authorization\nQ - Exit"
+	welcomeText = "Welcome to Termify!\n\nL - Start Spotify authorization\n" + ExitText
 )
 
 // Config will hold all of the meta data about the current state of
 // Termify, such as the currentView, history stack, etc.
 type Config struct {
 	currentView View
+	AccessToken auth.AccessToken
 }
 
 // View is a struct that contains a view's information and behaviors, such
@@ -37,7 +44,11 @@ type Choice struct {
 	ResponseType string
 }
 
-var uiConfig Config
+// SetAccessToken sets the SpotifyConfig access token to be used throughout
+// Spoitfy Web API endpoints.
+func (c *Config) SetAccessToken(token auth.AccessToken) {
+	c.AccessToken = token
+}
 
 // CreateAPIRequest returns an http request pointer for the user selected
 // choice object that is passed in.
@@ -49,7 +60,8 @@ func (c Choice) CreateAPIRequest(t auth.AccessToken) *http.Request {
 		os.Exit(1)
 	}
 
-	req.Header.Add("Authorization", "Bearer "+t.Token)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", t.Token))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept", "application/json")
 	return req
 }
@@ -69,20 +81,20 @@ func (c Choice) SendAPIRequest(req *http.Request) *http.Response {
 }
 
 // CurrentView returns the View that Termify is currently displaying.
-func (v *Config) CurrentView() View {
-	return v.currentView
+func (c *Config) CurrentView() View {
+	return c.currentView
 }
 
 // Render updates the current view of Termify.
-func (v *Config) Render(newView View) {
+func (c *Config) Render(newView View, uiConfig *Config) {
 	resetRows()
 	switch newView.Name {
 	case playback:
-		mountRow(playbackComponent())
+		mountRow(playbackComponent(uiConfig))
 	default:
-		mountRow(welcomeComponent())
+		mountRow(welcomeComponent(uiConfig))
 	}
-	v.currentView = newView
+	c.currentView = newView
 }
 
 // ResetRows resets the current ui rows that are being displayed

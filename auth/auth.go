@@ -31,6 +31,32 @@ type AccessToken struct {
 	ExpiresIn    int    `json:"expires_in"`
 }
 
+// Config is a type struct that is used to hold useful information
+// that can be used throughout the application and the Spotify Web API.
+type Config struct {
+	// Params needed to fetch a Spotify access token after login/permission grant.
+	AccessCode string
+	ReqState   string
+	AccessErr  string
+
+	// Access token to be returned via fetch after login/permission grant/
+	AccessToken AccessToken
+}
+
+// SetTokenFetchRequirements sets the proper fields needed to fetch an
+// access token from Spotify after login/permission grant.
+func (c *Config) SetTokenFetchRequirements(code, state, err string) {
+	c.AccessCode = code
+	c.ReqState = state
+	c.AccessErr = err
+}
+
+// SetAccessToken sets the SpotifyConfig access token to be used throughout
+// Spoitfy Web API endpoints.
+func (c *Config) SetAccessToken(token AccessToken) {
+	c.AccessToken = token
+}
+
 // FetchSpotifyToken retrieves a Spotify API access token in exchange for
 // the authorization code that comes back upon successfully logging
 // in and granting Termify access to one's Spotify information. This
