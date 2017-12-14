@@ -80,7 +80,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, aut
 			auth.CacheToken(tx, token)
 			return nil
 		})
-		ui.ResetRows()
+		ui.ResetTerminal()
 		ui.NewPlaybackComponent().Render(uiConfig)
 	}
 }
@@ -120,25 +120,24 @@ func main() {
 				auth.CacheToken(tx, token)
 				uiConfig.SetAccessToken(token)
 				authConfig.SetAccessToken(token)
+			} else {
+				expireTime, _ := strconv.Atoi(string(expiresIn))
+
+				uiConfig.SetAccessToken(auth.AccessToken{
+					Token:        string(accessToken),
+					Type:         string(tokenType),
+					Scope:        string(tokenScope),
+					RefreshToken: string(refreshToken),
+					ExpiresIn:    expireTime,
+				})
+				authConfig.SetAccessToken(auth.AccessToken{
+					Token:        string(accessToken),
+					Type:         string(tokenType),
+					Scope:        string(tokenScope),
+					RefreshToken: string(refreshToken),
+					ExpiresIn:    expireTime,
+				})
 			}
-
-			expireTime, _ := strconv.Atoi(string(expiresIn))
-
-			uiConfig.SetAccessToken(auth.AccessToken{
-				Token:        string(accessToken),
-				Type:         string(tokenType),
-				Scope:        string(tokenScope),
-				RefreshToken: string(refreshToken),
-				ExpiresIn:    expireTime,
-			})
-			authConfig.SetAccessToken(auth.AccessToken{
-				Token:        string(accessToken),
-				Type:         string(tokenType),
-				Scope:        string(tokenScope),
-				RefreshToken: string(refreshToken),
-				ExpiresIn:    expireTime,
-			})
-
 			return nil
 		}
 		needToLogin = true

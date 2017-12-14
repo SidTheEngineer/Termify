@@ -85,8 +85,8 @@ func (c *Config) CurrentView() View {
 	return c.currentView
 }
 
-// ResetRows resets the current ui rows that are being displayed
-func ResetRows() {
+// ResetTerminal resets the current ui rows that are being displayed
+func ResetTerminal() {
 	tui.Close()
 	tui.Init()
 }

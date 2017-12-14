@@ -33,7 +33,7 @@ func (p Playback) Render(uiConfig *Config) {
 	controls := createControls(uiConfig)
 
 	if tui.Body != nil {
-		ResetRows()
+		ResetTerminal()
 	} else {
 		tui.Init()
 	}
