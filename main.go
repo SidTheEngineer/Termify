@@ -10,6 +10,7 @@ import (
 
 	"github.com/SidTheEngineer/Termify/auth"
 	"github.com/SidTheEngineer/Termify/ui"
+	"github.com/SidTheEngineer/Termify/util"
 	"github.com/boltdb/bolt"
 	"github.com/fatih/color"
 	tui "github.com/gizak/termui"
@@ -98,7 +99,19 @@ func main() {
 		expiresIn := authBucket.Get([]byte(tokenExpiresInText))
 		timeTokenCached := authBucket.Get([]byte(timeTokenCachedText))
 
-		allFieldsCached := accessToken != nil && refreshToken != nil && expiresIn != nil && timeTokenCached != nil
+		allFieldsCached := !util.IsNil(
+			accessToken,
+			tokenType,
+			refreshToken,
+			expiresIn,
+			timeTokenCached,
+		) && !util.IsEmpty(
+			accessToken,
+			tokenType,
+			refreshToken,
+			expiresIn,
+			timeTokenCached,
+		)
 
 		if allFieldsCached {
 			if auth.TokenIsExpired(string(timeTokenCached), string(expiresIn)) {
@@ -132,6 +145,7 @@ func main() {
 	})
 
 	if needToLogin {
+		// Abstract this out to a UI login component
 		if err := tui.Init(); err != nil {
 			log.Fatal(err)
 		}

@@ -44,8 +44,12 @@ type Choice struct {
 	ResponseType string
 }
 
+// Component defines behavior for all UI "components" that are built
+// via TermUI
 type Component interface {
 	Render()
+	attachHandlers()
+	createView() View
 }
 
 // SetAccessToken sets the SpotifyConfig access token to be used throughout

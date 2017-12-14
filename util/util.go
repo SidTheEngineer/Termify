@@ -14,3 +14,23 @@ func GenerateRandomString(strLen int) string {
 	}
 	return string(b)
 }
+
+// IsEmpty checks if byte array(s) is/are empty.
+func IsEmpty(arrays ...[]byte) bool {
+	for _, arr := range arrays {
+		if len(arr) == 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// IsNil checks if byte array(s) is/are nil.
+func IsNil(arrays ...[]byte) bool {
+	for _, arr := range arrays {
+		if arr == nil {
+			return true
+		}
+	}
+	return false
+}

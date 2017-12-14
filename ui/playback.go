@@ -4,6 +4,9 @@ import (
 	tui "github.com/gizak/termui"
 )
 
+type Playback struct {
+}
+
 // NewPlaybackView returns a View corresponding to music playback
 // (play, pause, currently playing, etc.)
 func NewPlaybackView() View {
@@ -64,6 +67,7 @@ func playbackComponent(uiConfig *Config) *tui.List {
 	choiceList.BorderFg = tui.ColorGreen
 	choiceList.BorderLabel = "Commands"
 	choiceList.Height = 10
+	choiceList.ItemFgColor = tui.ColorYellow
 	choiceList.Items = []string{
 		NewLine,
 		ExitText,
