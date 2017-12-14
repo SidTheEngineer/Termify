@@ -62,8 +62,10 @@ func playbackComponent(uiConfig *Config) *tui.List {
 	choiceList := tui.NewList()
 	choiceList.Border = true
 	choiceList.BorderFg = tui.ColorGreen
+	choiceList.BorderLabel = "Commands"
 	choiceList.Height = 10
 	choiceList.Items = []string{
+		NewLine,
 		ExitText,
 		NewLine,
 		playChoice().Name,
