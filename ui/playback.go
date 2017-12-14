@@ -4,21 +4,47 @@ import (
 	tui "github.com/gizak/termui"
 )
 
+// Playback is a component that contains all of the UI related to
+// music playback, such as playing, pausing, current song, etc.
 type Playback struct {
+	view View
 }
 
-// NewPlaybackView returns a View corresponding to music playback
-// (play, pause, currently playing, etc.)
-func NewPlaybackView() View {
-	return View{
-		Name: "playback",
-		Choices: []Choice{
-			playChoice(),
-			pauseChoice(),
-			skipChoice(),
-			backChoice(),
+// NewPlaybackComponent returns a new component that contains
+// all of the UI related to music playback, such as playing, pausing, current song, etc..
+func NewPlaybackComponent() Playback {
+	return Playback{
+		view: View{
+			Name: "playback",
+			Choices: []Choice{
+				playChoice(),
+				pauseChoice(),
+				skipChoice(),
+				backChoice(),
+			},
 		},
 	}
+}
+
+// Render mounts/displays a Playback component in the terminal.
+func (p Playback) Render(uiConfig *Config) {
+
+	tui.ResetHandlers()
+	controls := createControls(uiConfig)
+
+	if tui.Body != nil {
+		ResetRows()
+	} else {
+		tui.Init()
+	}
+
+	tui.Body.AddRows(tui.NewRow(
+		tui.NewCol(2, 0, controls),
+	))
+
+	tui.Body.Align()
+	tui.Render(tui.Body)
+
 }
 
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
@@ -61,14 +87,14 @@ func backChoice() Choice {
 	}
 }
 
-func playbackComponent(uiConfig *Config) *tui.List {
-	choiceList := tui.NewList()
-	choiceList.Border = true
-	choiceList.BorderFg = tui.ColorGreen
-	choiceList.BorderLabel = "Commands"
-	choiceList.Height = 10
-	choiceList.ItemFgColor = tui.ColorYellow
-	choiceList.Items = []string{
+func createControls(uiConfig *Config) *tui.List {
+	controls := tui.NewList()
+	controls.Border = true
+	controls.BorderFg = tui.ColorGreen
+	controls.BorderLabel = "Controls"
+	controls.Height = 10
+	controls.ItemFgColor = tui.ColorYellow
+	controls.Items = []string{
 		NewLine,
 		ExitText,
 		NewLine,
@@ -78,18 +104,17 @@ func playbackComponent(uiConfig *Config) *tui.List {
 		backChoice().Name,
 	}
 
-	tui.ResetHandlers()
 	tui.Handle("/sys/kbd/q", func(tui.Event) {
 		tui.StopLoop()
 	})
 
 	attachPlaybackComponentHandlers(uiConfig)
 
-	return choiceList
+	return controls
 }
 
 func attachPlaybackComponentHandlers(uiConfig *Config) {
-	playbackChoices := NewPlaybackView().Choices
+	playbackChoices := NewPlaybackComponent().view.Choices
 	tui.Handle("/sys/kbd/q", func(e tui.Event) {
 		tui.StopLoop()
 	})

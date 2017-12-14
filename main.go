@@ -80,7 +80,8 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, aut
 			auth.CacheToken(tx, token)
 			return nil
 		})
-		uiConfig.Render(ui.NewPlaybackView(), uiConfig)
+		ui.ResetRows()
+		ui.NewPlaybackComponent().Render(uiConfig)
 	}
 }
 
@@ -145,17 +146,17 @@ func main() {
 	})
 
 	if needToLogin {
-		// Abstract this out to a UI login component
 		if err := tui.Init(); err != nil {
 			log.Fatal(err)
 		}
 
 		defer tui.Close()
 
-		uiConfig.Render(ui.View{
-			Name: "welcome",
-		}, &uiConfig)
+		ui.NewWelcomeComponent().Render(&uiConfig)
 
+		// We need to attach our welcome component key handlers here
+		// to avoid cycle importing due to the server/callback handler
+		// requiring stuff from ui package
 		tui.Handle("/sys/kbd/q", func(tui.Event) {
 			tui.StopLoop()
 		})
@@ -165,7 +166,6 @@ func main() {
 			srv := createServer(&authConfig, &uiConfig)
 			startServer(srv)
 		})
-
 		tui.Loop()
 	} else {
 		if err := tui.Init(); err != nil {
@@ -174,7 +174,7 @@ func main() {
 
 		defer tui.Close()
 
-		uiConfig.Render(ui.NewPlaybackView(), &uiConfig)
+		ui.NewPlaybackComponent().Render(&uiConfig)
 
 		tui.Loop()
 	}

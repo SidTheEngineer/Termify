@@ -44,14 +44,6 @@ type Choice struct {
 	ResponseType string
 }
 
-// Component defines behavior for all UI "components" that are built
-// via TermUI
-type Component interface {
-	Render()
-	attachHandlers()
-	createView() View
-}
-
 // SetAccessToken sets the SpotifyConfig access token to be used throughout
 // Spoitfy Web API endpoints.
 func (c *Config) SetAccessToken(token auth.AccessToken) {
@@ -93,26 +85,10 @@ func (c *Config) CurrentView() View {
 	return c.currentView
 }
 
-// Render updates the current view of Termify.
-func (c *Config) Render(newView View, uiConfig *Config) {
-	if tui.Body != nil {
-		resetRows()
-	} else {
-		tui.Init()
-	}
-
-	switch newView.Name {
-	case playback:
-		mountRow(playbackComponent(uiConfig))
-	default:
-		mountRow(welcomeComponent(uiConfig))
-	}
-	c.currentView = newView
-}
-
 // ResetRows resets the current ui rows that are being displayed
-func resetRows() {
-	tui.Body.Rows = tui.Body.Rows[:0]
+func ResetRows() {
+	tui.Close()
+	tui.Init()
 }
 
 func mountRow(component tui.GridBufferer) {
