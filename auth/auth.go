@@ -5,20 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/SidTheEngineer/Termify/util"
+	"github.com/boltdb/bolt"
 	"github.com/skratchdot/open-golang/open"
 )
 
 const (
-	authURL          = "https://accounts.spotify.com/authorize"
-	authRedirectURI  = "http://localhost:8000/callback"
-	scopes           = "user-read-playback-state user-modify-playback-state"
-	tokenURL         = "https://accounts.spotify.com/api/token"
-	tokenGrantType   = "authorization_code"
-	tokenRedirectURI = "http://localhost:8000/callback"
+	authURL               = "https://accounts.spotify.com/authorize"
+	authRedirectURI       = "http://localhost:8000/callback"
+	scopes                = "user-read-playback-state user-modify-playback-state"
+	tokenURL              = "https://accounts.spotify.com/api/token"
+	tokenGrantType        = "authorization_code"
+	tokenRedirectURI      = "http://localhost:8000/callback"
+	tokenMethod           = "POST"
+	refreshTokenGrantType = "refresh_token"
+	accessTokenText       = "accessToken"
+	tokenTypeText         = "tokenType"
+	tokenScopeText        = "tokenScope"
+	refreshTokenText      = "refreshToken"
+	tokenExpiresInText    = "tokenExpiresIn"
+	timeTokenCachedText   = "timeTokenCached"
 )
 
 // AccessToken is a token response returned after a Spotify authorization
@@ -64,15 +76,40 @@ func (c *Config) SetAccessToken(token AccessToken) {
 func FetchSpotifyToken(code string) AccessToken {
 	client := &http.Client{}
 	accessToken := AccessToken{}
-	req, err := http.NewRequest("POST", tokenURL, nil)
+	req, err := http.NewRequest(tokenMethod, tokenURL, nil)
 
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	addTokenQueryParams(req, code)
 	addTokenHeaders(req)
+	resp, _ := client.Do(req)
+	bytes, _ := ioutil.ReadAll(resp.Body)
+
+	json.Unmarshal(bytes, &accessToken)
+
+	return accessToken
+}
+
+// FetchSpotifyTokenByRefresh uses a Spotify refresh token that was returned
+// from an initial token fetch to get a new AccessToken. Used once a token has
+// expired.
+func FetchSpotifyTokenByRefresh(refreshToken string) AccessToken {
+	client := &http.Client{}
+	accessToken := AccessToken{}
+	req, err := http.NewRequest(tokenMethod, tokenURL, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	q := req.URL.Query()
+	q.Add("grant_type", refreshTokenGrantType)
+	q.Add("refresh_token", refreshToken)
+	req.URL.RawQuery = q.Encode()
+	addTokenHeaders(req)
+
 	resp, _ := client.Do(req)
 	bytes, _ := ioutil.ReadAll(resp.Body)
 
@@ -95,6 +132,27 @@ func Authorize() {
 // from environment variables on the machine the application is run on.
 func GetClientIDAndSecret() (string, string) {
 	return os.Getenv("SPOTIFY_CLIENT"), os.Getenv("SPOTIFY_SECRET")
+}
+
+// TokenIsExpired uses a tokens attributes to return whether or not
+// "expiresIn" amount of time has passed.
+func TokenIsExpired(timeTokenCached, expiresIn string) bool {
+	cacheTime, _ := strconv.Atoi(timeTokenCached)
+	secsTilExpire, _ := strconv.Atoi(expiresIn)
+
+	return int(time.Now().Unix())-cacheTime > secsTilExpire
+}
+
+// CacheToken stores appropriate spotify AccessToken information in
+// the bolt database
+func CacheToken(tx *bolt.Tx, token AccessToken) {
+	authBucket := tx.Bucket([]byte("auth"))
+	authBucket.Put([]byte(accessTokenText), []byte(token.Token))
+	authBucket.Put([]byte(tokenTypeText), []byte(token.Type))
+	authBucket.Put([]byte(tokenScopeText), []byte(token.Scope))
+	authBucket.Put([]byte(refreshTokenText), []byte(token.RefreshToken))
+	authBucket.Put([]byte(tokenExpiresInText), []byte(strconv.Itoa(token.ExpiresIn)))
+	authBucket.Put([]byte(timeTokenCachedText), []byte(strconv.FormatInt(int64(time.Now().Unix()), 10)))
 }
 
 func createSpotifyAuthURL() string {

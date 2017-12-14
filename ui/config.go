@@ -91,7 +91,12 @@ func (c *Config) CurrentView() View {
 
 // Render updates the current view of Termify.
 func (c *Config) Render(newView View, uiConfig *Config) {
-	resetRows()
+	if tui.Body != nil {
+		resetRows()
+	} else {
+		tui.Init()
+	}
+
 	switch newView.Name {
 	case playback:
 		mountRow(playbackComponent(uiConfig))

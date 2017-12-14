@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/SidTheEngineer/Termify/auth"
@@ -15,8 +16,14 @@ import (
 )
 
 const (
-	port             = ":8000"
-	grantAccessError = "A Spotfiy permission error occurred. Try logging in again."
+	port                = ":8000"
+	grantAccessError    = "A Spotfiy permission error occurred. Try logging in again."
+	accessTokenText     = "accessToken"
+	tokenTypeText       = "tokenType"
+	tokenScopeText      = "tokenScope"
+	refreshTokenText    = "refreshToken"
+	tokenExpiresInText  = "tokenExpiresIn"
+	timeTokenCachedText = "timeTokenCached"
 )
 
 var (
@@ -63,48 +70,77 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, aut
 		color.Red(fmt.Sprint(grantAccessError))
 		os.Exit(1)
 	} else {
-		fmt.Println("doing the token stuff")
 		token := auth.FetchSpotifyToken(authConfig.AccessCode)
 		authConfig.SetAccessToken(token)
 		uiConfig.SetAccessToken(token)
-		db.Update(func(tx *bolt.Tx) error {
+		// Cache the token info
+		db.Batch(func(tx *bolt.Tx) error {
 			defer s.Close()
-			fmt.Println("doing the db stuff")
-			authBucket := tx.Bucket([]byte("auth"))
-			fmt.Println("setting the access token")
-			err := authBucket.Put([]byte("accessToken"), []byte(token.Token))
-
-			if err != nil {
-				log.Fatal(err)
-			}
-
+			auth.CacheToken(tx, token)
 			return nil
 		})
-		// uiConfig.Render(ui.NewPlaybackView(), uiConfig)
+		uiConfig.Render(ui.NewPlaybackView(), uiConfig)
 	}
 }
 
 func main() {
+	needToLogin := false
+
 	startDB()
 	defer db.Close()
 
-	db.View(func(tx *bolt.Tx) error {
+	db.Batch(func(tx *bolt.Tx) error {
 		authBucket := tx.Bucket([]byte("auth"))
-		at := authBucket.Get([]byte("accessToken"))
+		accessToken := authBucket.Get([]byte(accessTokenText))
+		tokenType := authBucket.Get([]byte(tokenTypeText))
+		tokenScope := authBucket.Get([]byte(tokenScopeText))
+		refreshToken := authBucket.Get([]byte(refreshTokenText))
+		expiresIn := authBucket.Get([]byte(tokenExpiresInText))
+		timeTokenCached := authBucket.Get([]byte(timeTokenCachedText))
 
-		if at != nil {
-			fmt.Printf("the token: %s", string(at))
+		allFieldsCached := accessToken != nil && refreshToken != nil && expiresIn != nil && timeTokenCached != nil
+
+		if allFieldsCached {
+			if auth.TokenIsExpired(string(timeTokenCached), string(expiresIn)) {
+				token := auth.FetchSpotifyTokenByRefresh(string(refreshToken))
+				auth.CacheToken(tx, token)
+				uiConfig.SetAccessToken(token)
+				authConfig.SetAccessToken(token)
+			}
+
+			expireTime, _ := strconv.Atoi(string(expiresIn))
+
+			uiConfig.SetAccessToken(auth.AccessToken{
+				Token:        string(accessToken),
+				Type:         string(tokenType),
+				Scope:        string(tokenScope),
+				RefreshToken: string(refreshToken),
+				ExpiresIn:    expireTime,
+			})
+			authConfig.SetAccessToken(auth.AccessToken{
+				Token:        string(accessToken),
+				Type:         string(tokenType),
+				Scope:        string(tokenScope),
+				RefreshToken: string(refreshToken),
+				ExpiresIn:    expireTime,
+			})
+
 			return nil
 		}
+		needToLogin = true
+		return nil
+	})
 
+	if needToLogin {
 		if err := tui.Init(); err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
+
 		defer tui.Close()
 
-		// uiConfig.Render(ui.View{
-		// 	Name: "welcome",
-		// }, &uiConfig)
+		uiConfig.Render(ui.View{
+			Name: "welcome",
+		}, &uiConfig)
 
 		tui.Handle("/sys/kbd/q", func(tui.Event) {
 			tui.StopLoop()
@@ -117,7 +153,15 @@ func main() {
 		})
 
 		tui.Loop()
+	} else {
+		if err := tui.Init(); err != nil {
+			log.Fatal(err)
+		}
 
-		return nil
-	})
+		defer tui.Close()
+
+		uiConfig.Render(ui.NewPlaybackView(), &uiConfig)
+
+		tui.Loop()
+	}
 }
