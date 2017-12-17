@@ -138,6 +138,7 @@ func main() {
 					ExpiresIn:    expireTime,
 				})
 			}
+			// TODO: Return error that might be generated
 			return nil
 		}
 		needToLogin = true
