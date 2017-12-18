@@ -53,9 +53,9 @@ func (c *Config) SetAccessToken(token auth.AccessToken) {
 // CreateAPIRequest returns an http request pointer for the user selected
 // choice object that is passed in.
 func (c Choice) CreateAPIRequest(t auth.AccessToken) *http.Request {
-	// TODO: Could not have AccessToken passed in and simply check if the
-	// current one on the config object is expired, if it is, get a new one,
-	// and if not, use it to create a new request.
+	// TODO: Find a way to get the current token and when it was cached (which
+	// is held in the db) from here. May need to take a look at changing
+	// architecture a bit.
 	req, err := http.NewRequest(c.APIMethod, c.APIRoute, nil)
 
 	if err != nil {
