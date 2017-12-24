@@ -22,24 +22,15 @@ type Playback struct {
 	view View
 }
 
+// Track represents track information that we want from the Spotify track object.
 type Track struct {
-	Name    string
-	Artists string
+	Name, Artists string
 }
 
-// // CurrentlyPlayingContext https://developer.spotify.com/web-api/get-information-about-the-users-current-playback/
-// type CurrentlyPlayingContext struct {
-// 	Device       *Device `json:"device"`
-// 	RepeatState  string  `json:"repeat_state"`
-// 	ShuffleState bool    `json:"shuffle_state"`
-// 	Timestamp    int     `json:"timestamp"`
-// 	ProgressMS   int     `json:"progress_ms"`
-// 	IsPlaying    bool    `json:"is_playing"`
-// 	Track        *Track  `json:"item"`
-// }
-
-// type Track struct {
-// }
+// Device represents device information that we want from the Sptify device object.
+type Device struct {
+	Name, DeviceType string
+}
 
 // NewPlaybackComponent returns a new component that contains
 // all of the UI related to music playback, such as playing, pausing, current song, etc..
@@ -64,9 +55,10 @@ func (p Playback) Render(uiConfig *Config) {
 
 	contextJSON := getCurrentlyPlayingContext(uiConfig)
 	trackInfo := getTrackInformationFromJSON(contextJSON)
+	deviceInfo := getDeviceInformationFromJSON(contextJSON)
 
 	controls := createControls(uiConfig)
-	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo)
+	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
 
 	if tui.Body != nil {
 		ResetTerminal()
@@ -76,7 +68,7 @@ func (p Playback) Render(uiConfig *Config) {
 
 	tui.Body.AddRows(tui.NewRow(
 		tui.NewCol(2, 0, controls),
-		tui.NewCol(10, 0, currentlyPlayingUI),
+		tui.NewCol(2, 0, currentlyPlayingUI),
 	))
 
 	tui.Body.Align()
@@ -149,10 +141,19 @@ func createControls(uiConfig *Config) *tui.List {
 	return controls
 }
 
-func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track) *tui.Par {
-	currentlyPlayingUI := tui.NewPar(trackInfo.Name + "\n" + trackInfo.Artists)
+func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Device) *tui.Par {
+	currentlyPlayingUI := tui.NewPar(
+		fmt.Sprintf(
+			"\n%s - %s\n\n%s\n%s",
+			deviceInfo.DeviceType,
+			deviceInfo.Name,
+			trackInfo.Name,
+			trackInfo.Artists,
+		),
+	)
 	currentlyPlayingUI.BorderLabel = "Currently Playing"
 	currentlyPlayingUI.BorderFg = tui.ColorMagenta
+	currentlyPlayingUI.TextFgColor = tui.ColorYellow
 	currentlyPlayingUI.Height = 10
 
 	return currentlyPlayingUI
@@ -207,6 +208,15 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 	json.Unmarshal(bytes, &jsonMap)
 
 	return jsonMap.(map[string]interface{})
+}
+
+func getDeviceInformationFromJSON(context map[string]interface{}) Device {
+	deviceName := context["device"].(map[string]interface{})["name"].(string)
+	deviceType := context["device"].(map[string]interface{})["type"].(string)
+	return Device{
+		Name:       deviceName,
+		DeviceType: deviceType,
+	}
 }
 
 func getTrackInformationFromJSON(context map[string]interface{}) Track {
