@@ -1,7 +1,19 @@
 package ui
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+
 	tui "github.com/gizak/termui"
+)
+
+const (
+	currentlyPlayingContextURL    = "https://api.spotify.com/v1/me/player"
+	currentlyPlayingContextMethod = "GET"
 )
 
 // Playback is a component that contains all of the UI related to
@@ -9,6 +21,25 @@ import (
 type Playback struct {
 	view View
 }
+
+type Track struct {
+	Name    string
+	Artists string
+}
+
+// // CurrentlyPlayingContext https://developer.spotify.com/web-api/get-information-about-the-users-current-playback/
+// type CurrentlyPlayingContext struct {
+// 	Device       *Device `json:"device"`
+// 	RepeatState  string  `json:"repeat_state"`
+// 	ShuffleState bool    `json:"shuffle_state"`
+// 	Timestamp    int     `json:"timestamp"`
+// 	ProgressMS   int     `json:"progress_ms"`
+// 	IsPlaying    bool    `json:"is_playing"`
+// 	Track        *Track  `json:"item"`
+// }
+
+// type Track struct {
+// }
 
 // NewPlaybackComponent returns a new component that contains
 // all of the UI related to music playback, such as playing, pausing, current song, etc..
@@ -30,7 +61,12 @@ func NewPlaybackComponent() Playback {
 func (p Playback) Render(uiConfig *Config) {
 
 	tui.ResetHandlers()
+
+	contextJSON := getCurrentlyPlayingContext(uiConfig)
+	trackInfo := getTrackInformationFromJSON(contextJSON)
+
 	controls := createControls(uiConfig)
+	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo)
 
 	if tui.Body != nil {
 		ResetTerminal()
@@ -40,11 +76,11 @@ func (p Playback) Render(uiConfig *Config) {
 
 	tui.Body.AddRows(tui.NewRow(
 		tui.NewCol(2, 0, controls),
+		tui.NewCol(10, 0, currentlyPlayingUI),
 	))
 
 	tui.Body.Align()
 	tui.Render(tui.Body)
-
 }
 
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
@@ -90,7 +126,7 @@ func backChoice() Choice {
 func createControls(uiConfig *Config) *tui.List {
 	controls := tui.NewList()
 	controls.Border = true
-	controls.BorderFg = tui.ColorGreen
+	controls.BorderFg = tui.ColorMagenta
 	controls.BorderLabel = "Controls"
 	controls.Height = 10
 	controls.ItemFgColor = tui.ColorYellow
@@ -111,6 +147,15 @@ func createControls(uiConfig *Config) *tui.List {
 	attachPlaybackComponentHandlers(uiConfig)
 
 	return controls
+}
+
+func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track) *tui.Par {
+	currentlyPlayingUI := tui.NewPar(trackInfo.Name + "\n" + trackInfo.Artists)
+	currentlyPlayingUI.BorderLabel = "Currently Playing"
+	currentlyPlayingUI.BorderFg = tui.ColorMagenta
+	currentlyPlayingUI.Height = 10
+
+	return currentlyPlayingUI
 }
 
 func attachPlaybackComponentHandlers(uiConfig *Config) {
@@ -140,4 +185,44 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 		req := playbackChoices[3].CreateAPIRequest(uiConfig.AccessToken)
 		playbackChoices[3].SendAPIRequest(req)
 	})
+}
+
+func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
+	var jsonMap interface{}
+	client := http.Client{}
+	req, _ := http.NewRequest(currentlyPlayingContextMethod, currentlyPlayingContextURL, nil)
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", uiConfig.AccessToken.Token))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept", "application/json")
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	bytes, _ := ioutil.ReadAll(resp.Body)
+	json.Unmarshal(bytes, &jsonMap)
+
+	return jsonMap.(map[string]interface{})
+}
+
+func getTrackInformationFromJSON(context map[string]interface{}) Track {
+	trackArtists := ""
+	trackName := context["item"].(map[string]interface{})["name"].(string)
+	artistJSONArray := context["item"].(map[string]interface{})["artists"].([]interface{})
+
+	for i, artist := range artistJSONArray {
+		trackArtists += artist.(map[string]interface{})["name"].(string)
+		if i != len(artistJSONArray)-1 {
+			trackArtists += ", "
+		}
+	}
+
+	return Track{
+		Name:    trackName,
+		Artists: trackArtists,
+	}
 }
