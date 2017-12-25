@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	tui "github.com/gizak/termui"
 )
@@ -177,14 +178,28 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 
 	tui.Handle("sys/kbd/3", func(e tui.Event) {
 		req := playbackChoices[2].CreateAPIRequest(uiConfig.AccessToken)
-		playbackChoices[2].SendAPIRequest(req)
-		updateCurrentlyPlayingUI(uiConfig)
+		res := playbackChoices[2].SendAPIRequest(req)
+		// Successful skips/backs return a 204 (no content)
+		if res.StatusCode == 204 {
+			// This is kind of hacky, but if we don't wait a sec here, the current
+			// device/track info isn't updated on Spotify's end, so it would be the
+			// last track/devices info.
+			time.Sleep(500 * time.Millisecond)
+			updateCurrentlyPlayingUI(uiConfig)
+		}
 	})
 
 	tui.Handle("sys/kbd/4", func(e tui.Event) {
 		req := playbackChoices[3].CreateAPIRequest(uiConfig.AccessToken)
-		playbackChoices[3].SendAPIRequest(req)
-		updateCurrentlyPlayingUI(uiConfig)
+		res := playbackChoices[3].SendAPIRequest(req)
+		// Successful skips/backs return a 204 (no content)
+		if res.StatusCode == 204 {
+			// This is kind of hacky, but if we don't wait a sec here, the current
+			// device/track info isn't updated on Spotify's end, so it would be the
+			// last track/devices info.
+			time.Sleep(500 * time.Millisecond)
+			updateCurrentlyPlayingUI(uiConfig)
+		}
 	})
 }
 

@@ -96,6 +96,7 @@ func (c *Config) CurrentView() View {
 
 // ResetTerminal resets the current ui rows that are being displayed
 func ResetTerminal() {
-	tui.Close()
-	tui.Init()
+	tui.Body.Rows = tui.Body.Rows[:0]
+	// tui.Close()
+	// tui.Init()
 }
