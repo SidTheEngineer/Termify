@@ -12,7 +12,7 @@ import (
 
 const (
 	// ExitText describes global exit text for the app
-	ExitText = "[ Q ] - Exit"
+	ExitText = "[ Q ] - Quit"
 
 	// NewLine can be used in termui lists and other components to be an "empty" text row
 	NewLine = "\n"
@@ -26,6 +26,7 @@ const (
 type Config struct {
 	currentView View
 	AccessToken auth.AccessToken
+	context     map[string]interface{}
 }
 
 // View is a struct that contains a view's information and behaviors, such
@@ -48,6 +49,11 @@ type Choice struct {
 // Spoitfy Web API endpoints.
 func (c *Config) SetAccessToken(token auth.AccessToken) {
 	c.AccessToken = token
+}
+
+// SetCurrentlyPlayingContext updates information about the current device/track
+func (c *Config) SetCurrentlyPlayingContext(ctx map[string]interface{}) {
+	c.context = ctx
 }
 
 // CreateAPIRequest returns an http request pointer for the user selected
@@ -92,16 +98,4 @@ func (c *Config) CurrentView() View {
 func ResetTerminal() {
 	tui.Close()
 	tui.Init()
-}
-
-func mountRow(component tui.GridBufferer) {
-	test := tui.NewPar("this is a test component")
-	test.Height = 10
-	test.Border = true
-	tui.Body.AddRows(tui.NewRow(
-		tui.NewCol(2, 0, component),
-		tui.NewCol(10, 0, test),
-	))
-	tui.Body.Align()
-	tui.Render(tui.Body)
 }

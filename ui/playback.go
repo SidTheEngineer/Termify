@@ -56,6 +56,7 @@ func (p Playback) Render(uiConfig *Config) {
 	contextJSON := getCurrentlyPlayingContext(uiConfig)
 	trackInfo := getTrackInformationFromJSON(contextJSON)
 	deviceInfo := getDeviceInformationFromJSON(contextJSON)
+	uiConfig.SetCurrentlyPlayingContext(contextJSON)
 
 	controls := createControls(uiConfig)
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
@@ -68,7 +69,7 @@ func (p Playback) Render(uiConfig *Config) {
 
 	tui.Body.AddRows(tui.NewRow(
 		tui.NewCol(2, 0, controls),
-		tui.NewCol(2, 0, currentlyPlayingUI),
+		tui.NewCol(4, 0, currentlyPlayingUI),
 	))
 
 	tui.Body.Align()
@@ -98,8 +99,8 @@ func pauseChoice() Choice {
 // https://developer.spotify.com/web-api/skip-users-playback-to-next-track/
 func skipChoice() Choice {
 	return Choice{
-		Name:         "[ 3 ] - Next",
-		APIRoute:     "https://api.spotify.com/v1/me/player/next",
+		Name:         "[ 3 ] - Previous",
+		APIRoute:     "https://api.spotify.com/v1/me/player/previous",
 		APIMethod:    "POST",
 		ResponseType: "",
 	}
@@ -108,8 +109,8 @@ func skipChoice() Choice {
 // https://developer.spotify.com/web-api/skip-users-playback-to-previous-track/
 func backChoice() Choice {
 	return Choice{
-		Name:         "[ 4 ] - Previous",
-		APIRoute:     "https://api.spotify.com/v1/me/player/previous",
+		Name:         "[ 4 ] - Next",
+		APIRoute:     "https://api.spotify.com/v1/me/player/next",
 		APIMethod:    "POST",
 		ResponseType: "",
 	}
@@ -161,9 +162,6 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 
 func attachPlaybackComponentHandlers(uiConfig *Config) {
 	playbackChoices := NewPlaybackComponent().view.Choices
-	tui.Handle("/sys/kbd/q", func(e tui.Event) {
-		tui.StopLoop()
-	})
 
 	// Unfortunately, these have to be hardcoded. Handle() breaks when trying to
 	// attach in a loop.
@@ -180,11 +178,13 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 	tui.Handle("sys/kbd/3", func(e tui.Event) {
 		req := playbackChoices[2].CreateAPIRequest(uiConfig.AccessToken)
 		playbackChoices[2].SendAPIRequest(req)
+		updateCurrentlyPlayingUI(uiConfig)
 	})
 
 	tui.Handle("sys/kbd/4", func(e tui.Event) {
 		req := playbackChoices[3].CreateAPIRequest(uiConfig.AccessToken)
 		playbackChoices[3].SendAPIRequest(req)
+		updateCurrentlyPlayingUI(uiConfig)
 	})
 }
 
@@ -235,4 +235,15 @@ func getTrackInformationFromJSON(context map[string]interface{}) Track {
 		Name:    trackName,
 		Artists: trackArtists,
 	}
+}
+
+func updateCurrentlyPlayingUI(uiConfig *Config) {
+	currentContext := getCurrentlyPlayingContext(uiConfig)
+	currentTrack := getTrackInformationFromJSON(currentContext)
+	deviceInfo := getDeviceInformationFromJSON(currentContext)
+	newCurrentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, currentTrack, deviceInfo)
+
+	tui.Body.Rows[0].Cols[1] = tui.NewCol(4, 0, newCurrentlyPlayingUI)
+	tui.Body.Align()
+	tui.Render(tui.Body)
 }
