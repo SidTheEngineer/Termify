@@ -15,6 +15,14 @@ import (
 const (
 	currentlyPlayingContextURL    = "https://api.spotify.com/v1/me/player"
 	currentlyPlayingContextMethod = "GET"
+	playingText                   = "[ Playing ]"
+	pausedText                    = "[ Paused ]"
+	playChoiceNameText            = "[ 1 ] - Play"
+	pauseChoiceNameText           = "[ 2 ] - Pause"
+	previousChoiceNameText        = "[ 3 ] - Previous"
+	nextChoiceNameText            = "[ 4 ] - Next"
+	controlsBorderLabel           = "Controls"
+	currentlyPlayingBorderLabel   = "Currently Playing"
 )
 
 // Playback is a component that contains all of the UI related to
@@ -81,7 +89,7 @@ func (p Playback) Render(uiConfig *Config) {
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
 func playChoice() Choice {
 	return Choice{
-		Name:         "[ 1 ] - Play",
+		Name:         playChoiceNameText,
 		APIRoute:     "https://api.spotify.com/v1/me/player/play",
 		APIMethod:    "PUT",
 		ResponseType: "",
@@ -91,7 +99,7 @@ func playChoice() Choice {
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/pause-a-users-playback/
 func pauseChoice() Choice {
 	return Choice{
-		Name:         "[ 2 ] - Pause",
+		Name:         pauseChoiceNameText,
 		APIRoute:     "https://api.spotify.com/v1/me/player/pause",
 		APIMethod:    "PUT",
 		ResponseType: "",
@@ -101,7 +109,7 @@ func pauseChoice() Choice {
 // https://developer.spotify.com/web-api/skip-users-playback-to-next-track/
 func skipChoice() Choice {
 	return Choice{
-		Name:         "[ 3 ] - Previous",
+		Name:         previousChoiceNameText,
 		APIRoute:     "https://api.spotify.com/v1/me/player/previous",
 		APIMethod:    "POST",
 		ResponseType: "",
@@ -111,7 +119,7 @@ func skipChoice() Choice {
 // https://developer.spotify.com/web-api/skip-users-playback-to-previous-track/
 func backChoice() Choice {
 	return Choice{
-		Name:         "[ 4 ] - Next",
+		Name:         nextChoiceNameText,
 		APIRoute:     "https://api.spotify.com/v1/me/player/next",
 		APIMethod:    "POST",
 		ResponseType: "",
@@ -122,7 +130,7 @@ func createControls(uiConfig *Config) *tui.List {
 	controls := tui.NewList()
 	controls.Border = true
 	controls.BorderFg = tui.ColorMagenta
-	controls.BorderLabel = "Controls"
+	controls.BorderLabel = controlsBorderLabel
 	controls.Height = 10
 	controls.ItemFgColor = tui.ColorYellow
 	controls.Items = []string{
@@ -144,29 +152,30 @@ func createControls(uiConfig *Config) *tui.List {
 	return controls
 }
 
-func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Device) *tui.Par {
-	var playingText string
+func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Device) *tui.List {
+	var playingState string
 
 	if deviceInfo.IsPlaying {
-		playingText = "[ Playing ... ]"
+		playingState = playingText
 	} else {
-		playingText = "[ PAUSED ]"
+		playingState = pausedText
 	}
 
-	currentlyPlayingUI := tui.NewPar(
-		fmt.Sprintf(
-			"\n%s - %s\n\n%s\n%s\n\n%s",
-			deviceInfo.DeviceType,
-			deviceInfo.Name,
-			trackInfo.Name,
-			trackInfo.Artists,
-			playingText,
-		),
-	)
-	currentlyPlayingUI.BorderLabel = "Currently Playing"
+	currentlyPlayingUI := tui.NewList()
+	currentlyPlayingUI.Border = true
+	currentlyPlayingUI.BorderLabel = currentlyPlayingBorderLabel
 	currentlyPlayingUI.BorderFg = tui.ColorMagenta
-	currentlyPlayingUI.TextFgColor = tui.ColorYellow
 	currentlyPlayingUI.Height = 10
+	currentlyPlayingUI.Items = []string{
+		NewLine,
+		deviceInfo.DeviceType + " - " + deviceInfo.Name,
+		NewLine + NewLine,
+		trackInfo.Name,
+		trackInfo.Artists,
+		NewLine + NewLine,
+		playingState,
+	}
+	currentlyPlayingUI.ItemFgColor = tui.ColorYellow
 
 	return currentlyPlayingUI
 }
@@ -183,7 +192,7 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
 			// playback information time to update.
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 	})
@@ -195,7 +204,7 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
 			// playback information time to update.
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 	})
@@ -207,7 +216,7 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
 			// playback information time to update.
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 	})
@@ -219,7 +228,7 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
 			// playback information time to update.
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 	})
