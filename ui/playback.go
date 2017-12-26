@@ -31,6 +31,7 @@ type Track struct {
 // Device represents device information that we want from the Sptify device object.
 type Device struct {
 	Name, DeviceType string
+	IsPlaying        bool
 }
 
 // NewPlaybackComponent returns a new component that contains
@@ -144,13 +145,22 @@ func createControls(uiConfig *Config) *tui.List {
 }
 
 func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Device) *tui.Par {
+	var playingText string
+
+	if deviceInfo.IsPlaying {
+		playingText = "[ Playing ... ]"
+	} else {
+		playingText = "[ PAUSED ]"
+	}
+
 	currentlyPlayingUI := tui.NewPar(
 		fmt.Sprintf(
-			"\n%s - %s\n\n%s\n%s",
+			"\n%s - %s\n\n%s\n%s\n\n%s",
 			deviceInfo.DeviceType,
 			deviceInfo.Name,
 			trackInfo.Name,
 			trackInfo.Artists,
+			playingText,
 		),
 	)
 	currentlyPlayingUI.BorderLabel = "Currently Playing"
@@ -168,12 +178,26 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 	// attach in a loop.
 	tui.Handle("sys/kbd/1", func(e tui.Event) {
 		req := playbackChoices[0].CreateAPIRequest(uiConfig.AccessToken)
-		playbackChoices[0].SendAPIRequest(req)
+		res := playbackChoices[0].SendAPIRequest(req)
+
+		if res.StatusCode == 204 {
+			// This is kind of hacky, but  wee need to wait here to give Spotify
+			// playback information time to update.
+			time.Sleep(500 * time.Millisecond)
+			updateCurrentlyPlayingUI(uiConfig)
+		}
 	})
 
 	tui.Handle("sys/kbd/2", func(e tui.Event) {
 		req := playbackChoices[1].CreateAPIRequest(uiConfig.AccessToken)
-		playbackChoices[1].SendAPIRequest(req)
+		res := playbackChoices[1].SendAPIRequest(req)
+
+		if res.StatusCode == 204 {
+			// This is kind of hacky, but  wee need to wait here to give Spotify
+			// playback information time to update.
+			time.Sleep(500 * time.Millisecond)
+			updateCurrentlyPlayingUI(uiConfig)
+		}
 	})
 
 	tui.Handle("sys/kbd/3", func(e tui.Event) {
@@ -181,9 +205,8 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 		res := playbackChoices[2].SendAPIRequest(req)
 		// Successful skips/backs return a 204 (no content)
 		if res.StatusCode == 204 {
-			// This is kind of hacky, but if we don't wait a sec here, the current
-			// device/track info isn't updated on Spotify's end, so it would be the
-			// last track/devices info.
+			// This is kind of hacky, but  wee need to wait here to give Spotify
+			// playback information time to update.
 			time.Sleep(500 * time.Millisecond)
 			updateCurrentlyPlayingUI(uiConfig)
 		}
@@ -194,9 +217,8 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 		res := playbackChoices[3].SendAPIRequest(req)
 		// Successful skips/backs return a 204 (no content)
 		if res.StatusCode == 204 {
-			// This is kind of hacky, but if we don't wait a sec here, the current
-			// device/track info isn't updated on Spotify's end, so it would be the
-			// last track/devices info.
+			// This is kind of hacky, but  wee need to wait here to give Spotify
+			// playback information time to update.
 			time.Sleep(500 * time.Millisecond)
 			updateCurrentlyPlayingUI(uiConfig)
 		}
@@ -228,9 +250,12 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 func getDeviceInformationFromJSON(context map[string]interface{}) Device {
 	deviceName := context["device"].(map[string]interface{})["name"].(string)
 	deviceType := context["device"].(map[string]interface{})["type"].(string)
+	isPlaying := context["is_playing"].(bool)
+
 	return Device{
 		Name:       deviceName,
 		DeviceType: deviceType,
+		IsPlaying:  isPlaying,
 	}
 }
 
@@ -258,6 +283,7 @@ func updateCurrentlyPlayingUI(uiConfig *Config) {
 	deviceInfo := getDeviceInformationFromJSON(currentContext)
 	newCurrentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, currentTrack, deviceInfo)
 
+	// Currently Playing box is row 1, column 2
 	tui.Body.Rows[0].Cols[1] = tui.NewCol(4, 0, newCurrentlyPlayingUI)
 	tui.Body.Align()
 	tui.Render(tui.Body)
