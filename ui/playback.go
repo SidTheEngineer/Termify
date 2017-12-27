@@ -235,7 +235,7 @@ func attachPlaybackComponentHandlers(uiConfig *Config) {
 }
 
 func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
-	var jsonMap interface{}
+	var jsonMap map[string]interface{}
 	client := http.Client{}
 	req, _ := http.NewRequest(currentlyPlayingContextMethod, currentlyPlayingContextURL, nil)
 
@@ -253,7 +253,7 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 	bytes, _ := ioutil.ReadAll(resp.Body)
 	json.Unmarshal(bytes, &jsonMap)
 
-	return jsonMap.(map[string]interface{})
+	return jsonMap
 }
 
 func getDeviceInformationFromJSON(context map[string]interface{}) Device {
