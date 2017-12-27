@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/SidTheEngineer/Termify/auth"
 
@@ -24,9 +25,10 @@ const (
 // Config will hold all of the meta data about the current state of
 // Termify, such as the currentView, history stack, etc.
 type Config struct {
-	currentView View
-	AccessToken auth.AccessToken
-	context     map[string]interface{}
+	currentView    View
+	AccessToken    auth.AccessToken
+	context        map[string]interface{}
+	progressTicker *time.Ticker
 }
 
 // View is a struct that contains a view's information and behaviors, such

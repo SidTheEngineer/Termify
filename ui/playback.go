@@ -39,6 +39,7 @@ type Track struct {
 // Device represents device information that we want from the Sptify device object.
 type Device struct {
 	Name, DeviceType string
+	ProgressMs       float64
 	IsPlaying        bool
 }
 
@@ -157,8 +158,21 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 
 	if deviceInfo.IsPlaying {
 		playingState = playingText
+		uiConfig.progressTicker = time.NewTicker(time.Millisecond * 1000)
+		go func() {
+			for t := range uiConfig.progressTicker.C {
+				// TODO: Calculate progress into song based on needed variables. Use uiConfig
+				// where necessary.
+				fmt.Println(t.Unix())
+			}
+		}()
+		// Skipping or going back a track always plays the track as well, so we will
+		// only reach this else if a pause choice is chosen.
 	} else {
 		playingState = pausedText
+		if uiConfig.progressTicker != nil {
+			uiConfig.progressTicker.Stop()
+		}
 	}
 
 	currentlyPlayingUI := tui.NewList()
@@ -259,11 +273,13 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 func getDeviceInformationFromJSON(context map[string]interface{}) Device {
 	deviceName := context["device"].(map[string]interface{})["name"].(string)
 	deviceType := context["device"].(map[string]interface{})["type"].(string)
+	progressMs := context["progress_ms"].(float64)
 	isPlaying := context["is_playing"].(bool)
 
 	return Device{
 		Name:       deviceName,
 		DeviceType: deviceType,
+		ProgressMs: progressMs,
 		IsPlaying:  isPlaying,
 	}
 }
