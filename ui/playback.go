@@ -34,6 +34,7 @@ type Playback struct {
 // Track represents track information that we want from the Spotify track object.
 type Track struct {
 	Name, Artists string
+	DurationMs    float64
 }
 
 // Device represents device information that we want from the Sptify device object.
@@ -287,6 +288,7 @@ func getDeviceInformationFromJSON(context map[string]interface{}) Device {
 func getTrackInformationFromJSON(context map[string]interface{}) Track {
 	trackArtists := ""
 	trackName := context["item"].(map[string]interface{})["name"].(string)
+	durationMs := context["item"].(map[string]interface{})["duration_ms"].(float64)
 	artistJSONArray := context["item"].(map[string]interface{})["artists"].([]interface{})
 
 	for i, artist := range artistJSONArray {
@@ -297,8 +299,9 @@ func getTrackInformationFromJSON(context map[string]interface{}) Track {
 	}
 
 	return Track{
-		Name:    trackName,
-		Artists: trackArtists,
+		Name:       trackName,
+		Artists:    trackArtists,
+		DurationMs: durationMs,
 	}
 }
 

@@ -25,10 +25,11 @@ const (
 // Config will hold all of the meta data about the current state of
 // Termify, such as the currentView, history stack, etc.
 type Config struct {
-	currentView    View
-	AccessToken    auth.AccessToken
-	context        map[string]interface{}
-	progressTicker *time.Ticker
+	currentView                 View
+	AccessToken                 auth.AccessToken
+	context                     map[string]interface{}
+	progressTicker              *time.Ticker
+	timeElapsedSinceTickerStart int
 }
 
 // View is a struct that contains a view's information and behaviors, such
