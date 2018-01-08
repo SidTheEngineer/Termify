@@ -160,11 +160,19 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 	if deviceInfo.IsPlaying {
 		playingState = playingText
 		uiConfig.progressTicker = time.NewTicker(time.Millisecond * 1000)
+		uiConfig.timeElapsedFromTickerStart = 0
 		go func() {
-			for t := range uiConfig.progressTicker.C {
+			for _ = range uiConfig.progressTicker.C {
+				uiConfig.timeElapsedFromTickerStart += 1000
+
+				if uiConfig.timeElapsedFromTickerStart+int(deviceInfo.ProgressMs) > int(trackInfo.DurationMs) {
+					uiConfig.progressTicker.Stop()
+					updateCurrentlyPlayingUI(uiConfig)
+				}
 				// TODO: Calculate progress into song based on needed variables. Use uiConfig
 				// where necessary.
-				fmt.Println(t.Unix())
+				progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
+				fmt.Println(progressInSeconds)
 			}
 		}()
 		// Skipping or going back a track always plays the track as well, so we will
