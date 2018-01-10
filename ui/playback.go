@@ -157,7 +157,13 @@ func createControls(uiConfig *Config) *tui.List {
 func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Device) *tui.List {
 	var playingState string
 
+	// TODO: Abstract our ticker state from this method. Because updateCurrentlyPlayingUI
+	// calls this method, some weird stuff starts to happen when we manipulate the play state.
+
 	if deviceInfo.IsPlaying {
+		if uiConfig.progressTicker != nil {
+			uiConfig.progressTicker.Stop()
+		}
 		playingState = playingText
 		uiConfig.progressTicker = time.NewTicker(time.Millisecond * 1000)
 		uiConfig.timeElapsedFromTickerStart = 0
