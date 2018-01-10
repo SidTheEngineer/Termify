@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	tui "github.com/gizak/termui"
@@ -70,8 +71,11 @@ func (p Playback) Render(uiConfig *Config) {
 	deviceInfo := getDeviceInformationFromJSON(contextJSON)
 	uiConfig.SetCurrentlyPlayingContext(contextJSON)
 
+	progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
+
 	controls := createControls(uiConfig)
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
+	trackProgressUI := createTrackProgressUI(uiConfig, progressInSeconds)
 
 	if tui.Body != nil {
 		ResetTerminal()
@@ -79,10 +83,15 @@ func (p Playback) Render(uiConfig *Config) {
 		tui.Init()
 	}
 
-	tui.Body.AddRows(tui.NewRow(
-		tui.NewCol(2, 0, controls),
-		tui.NewCol(4, 0, currentlyPlayingUI),
-	))
+	tui.Body.AddRows(
+		tui.NewRow(
+			tui.NewCol(3, 0, controls),
+			tui.NewCol(5, 0, currentlyPlayingUI),
+		),
+		tui.NewRow(
+			tui.NewCol(3, 0, trackProgressUI),
+		),
+	)
 
 	tui.Body.Align()
 	tui.Render(tui.Body)
@@ -178,7 +187,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 				// TODO: Calculate progress into song based on needed variables. Use uiConfig
 				// where necessary.
 				progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
-				fmt.Println(progressInSeconds)
+				updateTrackProgressUI(uiConfig, progressInSeconds)
 			}
 		}()
 		// Skipping or going back a track always plays the track as well, so we will
@@ -326,7 +335,25 @@ func updateCurrentlyPlayingUI(uiConfig *Config) {
 	newCurrentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, currentTrack, deviceInfo)
 
 	// Currently Playing box is row 1, column 2
-	tui.Body.Rows[0].Cols[1] = tui.NewCol(4, 0, newCurrentlyPlayingUI)
+	tui.Body.Rows[0].Cols[1] = tui.NewCol(5, 0, newCurrentlyPlayingUI)
+	tui.Body.Align()
+	tui.Render(tui.Body)
+}
+
+func createTrackProgressUI(uiConfig *Config, progress int) *tui.Par {
+	progressUI := tui.NewPar(strconv.Itoa(progress))
+	progressUI.Height = 3
+	progressUI.Border = true
+	progressUI.BorderFg = tui.ColorMagenta
+	progressUI.BorderLabel = "Progress"
+
+	return progressUI
+}
+
+func updateTrackProgressUI(uiConfig *Config, progress int) {
+	newProgressUI := createTrackProgressUI(uiConfig, progress)
+
+	tui.Body.Rows[1].Cols[0] = tui.NewCol(3, 0, newProgressUI)
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }
