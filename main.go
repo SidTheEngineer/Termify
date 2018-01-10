@@ -91,6 +91,7 @@ func main() {
 	startDB()
 	defer db.Close()
 
+	// TODO: Could probably extract this db setup stuff to its own function or file.
 	db.Batch(func(tx *bolt.Tx) error {
 		authBucket := tx.Bucket([]byte("auth"))
 		accessToken := authBucket.Get([]byte(accessTokenText))

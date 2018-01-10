@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	tui "github.com/gizak/termui"
@@ -67,7 +66,11 @@ func (p Playback) Render(uiConfig *Config) {
 	tui.ResetHandlers()
 
 	contextJSON := getCurrentlyPlayingContext(uiConfig)
+
+	// TODO: This line can throw a 'panic: interface conversion: interface {} is nil, not map[string]interface {}'
+	// and needs to be fixed. I think this error arises when there are no tracks in the spotify player to begin with.
 	trackInfo := getTrackInformationFromJSON(contextJSON)
+
 	deviceInfo := getDeviceInformationFromJSON(contextJSON)
 	uiConfig.SetCurrentlyPlayingContext(contextJSON)
 
@@ -341,7 +344,8 @@ func updateCurrentlyPlayingUI(uiConfig *Config) {
 }
 
 func createTrackProgressUI(uiConfig *Config, progress int) *tui.Par {
-	progressUI := tui.NewPar(strconv.Itoa(progress))
+	timeString := fmt.Sprintf("%d:%.2d", progress/60, progress%60)
+	progressUI := tui.NewPar(timeString)
 	progressUI.Height = 3
 	progressUI.Border = true
 	progressUI.BorderFg = tui.ColorMagenta
