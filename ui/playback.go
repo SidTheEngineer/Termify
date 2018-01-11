@@ -294,6 +294,8 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 	bytes, _ := ioutil.ReadAll(resp.Body)
 	json.Unmarshal(bytes, &jsonMap)
 
+	uiConfig.SetCurrentlyPlayingContext(jsonMap)
+
 	return jsonMap
 }
 
@@ -344,7 +346,11 @@ func updateCurrentlyPlayingUI(uiConfig *Config) {
 }
 
 func createTrackProgressUI(uiConfig *Config, progress int) *tui.Par {
-	timeString := fmt.Sprintf("%d:%.2d", progress/60, progress%60)
+	trackDurationSecs := int(getTrackInformationFromJSON(uiConfig.context).DurationMs / 1000)
+	trackDurationMins := trackDurationSecs / 60
+	trackDurationRemaining := trackDurationSecs % 60
+
+	timeString := fmt.Sprintf("%d:%.2d/%d:%.2d", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
 	progressUI := tui.NewPar(timeString)
 	progressUI.Height = 3
 	progressUI.Border = true

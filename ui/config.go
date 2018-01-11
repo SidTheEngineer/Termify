@@ -30,6 +30,8 @@ type Config struct {
 	context                    map[string]interface{}
 	progressTicker             *time.Ticker
 	timeElapsedFromTickerStart int
+	currentTrack               Track
+	currentDevice              Device
 }
 
 // View is a struct that contains a view's information and behaviors, such
