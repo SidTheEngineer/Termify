@@ -17,12 +17,15 @@ const (
 	currentlyPlayingContextMethod = "GET"
 	playingText                   = "[ Playing ]"
 	pausedText                    = "[ Paused ]"
-	playChoiceNameText            = "[ 1 ] - Play"
-	pauseChoiceNameText           = "[ 2 ] - Pause"
-	previousChoiceNameText        = "[ 3 ] - Previous"
-	nextChoiceNameText            = "[ 4 ] - Next"
 	controlsBorderLabel           = "Controls"
 	currentlyPlayingBorderLabel   = "Currently Playing"
+	progressTimeHeight            = 3
+	progressTimeWidth             = 5
+	progressGuageWidth            = 7
+	controlsWidth                 = 5
+	currentlyPlayingWidth         = 7
+	controlsHeight                = 10
+	currentlyPlayingHeight        = 10
 )
 
 // Playback is a component that contains all of the UI related to
@@ -78,7 +81,7 @@ func (p Playback) Render(uiConfig *Config) {
 
 	controls := createControls(uiConfig)
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
-	trackProgressUI := createTrackProgressUI(uiConfig, progressInSeconds)
+	trackProgressTime := createtrackProgressTime(uiConfig, progressInSeconds)
 	trackProgressGuage := createTrackProgressGuage(uiConfig, progressInSeconds)
 
 	if tui.Body != nil {
@@ -89,12 +92,12 @@ func (p Playback) Render(uiConfig *Config) {
 
 	tui.Body.AddRows(
 		tui.NewRow(
-			tui.NewCol(3, 0, controls),
-			tui.NewCol(5, 0, currentlyPlayingUI),
+			tui.NewCol(controlsWidth, 0, controls),
+			tui.NewCol(currentlyPlayingWidth, 0, currentlyPlayingUI),
 		),
 		tui.NewRow(
-			tui.NewCol(3, 0, trackProgressUI),
-			tui.NewCol(5, 0, trackProgressGuage),
+			tui.NewCol(progressTimeWidth, 0, trackProgressTime),
+			tui.NewCol(progressGuageWidth, 0, trackProgressGuage),
 		),
 	)
 
@@ -102,52 +105,12 @@ func (p Playback) Render(uiConfig *Config) {
 	tui.Render(tui.Body)
 }
 
-// https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
-func playChoice() Choice {
-	return Choice{
-		Name:         playChoiceNameText,
-		APIRoute:     "https://api.spotify.com/v1/me/player/play",
-		APIMethod:    "PUT",
-		ResponseType: "",
-	}
-}
-
-// https://beta.developer.spotify.com/documentation/web-api/reference/player/pause-a-users-playback/
-func pauseChoice() Choice {
-	return Choice{
-		Name:         pauseChoiceNameText,
-		APIRoute:     "https://api.spotify.com/v1/me/player/pause",
-		APIMethod:    "PUT",
-		ResponseType: "",
-	}
-}
-
-// https://developer.spotify.com/web-api/skip-users-playback-to-next-track/
-func skipChoice() Choice {
-	return Choice{
-		Name:         previousChoiceNameText,
-		APIRoute:     "https://api.spotify.com/v1/me/player/previous",
-		APIMethod:    "POST",
-		ResponseType: "",
-	}
-}
-
-// https://developer.spotify.com/web-api/skip-users-playback-to-previous-track/
-func backChoice() Choice {
-	return Choice{
-		Name:         nextChoiceNameText,
-		APIRoute:     "https://api.spotify.com/v1/me/player/next",
-		APIMethod:    "POST",
-		ResponseType: "",
-	}
-}
-
 func createControls(uiConfig *Config) *tui.List {
 	controls := tui.NewList()
 	controls.Border = true
 	controls.BorderFg = tui.ColorMagenta
 	controls.BorderLabel = controlsBorderLabel
-	controls.Height = 10
+	controls.Height = controlsHeight
 	controls.ItemFgColor = tui.ColorYellow
 	controls.Items = []string{
 		NewLine,
@@ -192,7 +155,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 				// TODO: Calculate progress into song based on needed variables. Use uiConfig
 				// where necessary.
 				progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
-				updateTrackProgressUI(uiConfig, progressInSeconds)
+				updatetrackProgressTime(uiConfig, progressInSeconds)
 			}
 		}()
 		// Skipping or going back a track always plays the track as well, so we will
@@ -208,7 +171,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 	currentlyPlayingUI.Border = true
 	currentlyPlayingUI.BorderLabel = currentlyPlayingBorderLabel
 	currentlyPlayingUI.BorderFg = tui.ColorMagenta
-	currentlyPlayingUI.Height = 10
+	currentlyPlayingUI.Height = currentlyPlayingHeight
 	currentlyPlayingUI.Items = []string{
 		NewLine,
 		deviceInfo.DeviceType + " - " + deviceInfo.Name,
@@ -342,26 +305,26 @@ func updateCurrentlyPlayingUI(uiConfig *Config) {
 	newCurrentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, currentTrack, deviceInfo)
 
 	// Currently Playing box is row 1, column 2
-	tui.Body.Rows[0].Cols[1] = tui.NewCol(5, 0, newCurrentlyPlayingUI)
+	tui.Body.Rows[0].Cols[1] = tui.NewCol(7, 0, newCurrentlyPlayingUI)
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }
 
-func createTrackProgressUI(uiConfig *Config, progress int) *tui.Par {
+func createtrackProgressTime(uiConfig *Config, progress int) *tui.Par {
 	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
 	trackDurationSecs := int(trackDurationMs / 1000)
 	trackDurationMins := trackDurationSecs / 60
 	trackDurationRemaining := trackDurationSecs % 60
 
-	timeString := fmt.Sprintf("%11s%d:%.2d/%d:%.2d", " ", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
-	progressUI := tui.NewPar(timeString)
-	progressUI.Height = 3
-	progressUI.Border = true
-	progressUI.BorderFg = tui.ColorMagenta
-	progressUI.TextFgColor = tui.ColorYellow
-	progressUI.BorderLabel = "Progress"
+	timeString := fmt.Sprintf("%33s%d:%.2d/%d:%.2d", " ", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
+	progressTime := tui.NewPar(timeString)
+	progressTime.Height = progressTimeHeight
+	progressTime.Border = true
+	progressTime.BorderFg = tui.ColorMagenta
+	progressTime.TextFgColor = tui.ColorYellow
+	progressTime.BorderLabel = "Progress"
 
-	return progressUI
+	return progressTime
 }
 
 func createTrackProgressGuage(uiConfig *Config, progress int) *tui.Gauge {
@@ -377,12 +340,12 @@ func createTrackProgressGuage(uiConfig *Config, progress int) *tui.Gauge {
 	return progressGuage
 }
 
-func updateTrackProgressUI(uiConfig *Config, progress int) {
-	newProgressUI := createTrackProgressUI(uiConfig, progress)
+func updatetrackProgressTime(uiConfig *Config, progress int) {
+	newProgressTime := createtrackProgressTime(uiConfig, progress)
 	newProgressGuage := createTrackProgressGuage(uiConfig, progress)
 
-	tui.Body.Rows[1].Cols[0] = tui.NewCol(3, 0, newProgressUI)
-	tui.Body.Rows[1].Cols[1] = tui.NewCol(5, 0, newProgressGuage)
+	tui.Body.Rows[1].Cols[0] = tui.NewCol(progressTimeWidth, 0, newProgressTime)
+	tui.Body.Rows[1].Cols[1] = tui.NewCol(progressGuageWidth, 0, newProgressGuage)
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }
