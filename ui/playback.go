@@ -372,7 +372,6 @@ func createTrackProgressGuage(uiConfig *Config, progress int) *tui.Gauge {
 	progressGuage.BorderFg = tui.ColorMagenta
 	progressGuage.PercentColor = tui.ColorYellow
 	progressGuage.PercentColorHighlighted = tui.ColorMagenta
-	progressGuage.Label = "Progress"
 	progressGuage.Percent = int((float64(progress*1000) / trackDurationMs) * 100)
 
 	return progressGuage
