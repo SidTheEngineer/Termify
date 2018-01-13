@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/SidTheEngineer/Termify/auth"
-	"github.com/SidTheEngineer/Termify/ui"
+	"github.com/SidTheEngineer/Termify/playbackUI"
 	"github.com/SidTheEngineer/Termify/util"
 	"github.com/boltdb/bolt"
 	"github.com/fatih/color"
@@ -29,7 +29,7 @@ const (
 
 var (
 	authConfig auth.Config
-	uiConfig   ui.Config
+	uiConfig   playbackUI.Config
 	db         *bolt.DB
 )
 
@@ -51,7 +51,7 @@ func startServer(srv *http.Server) {
 	srv.ListenAndServe()
 }
 
-func createServer(authConfig *auth.Config, uiConfig *ui.Config) *http.Server {
+func createServer(authConfig *auth.Config, uiConfig *playbackUI.Config) *http.Server {
 	srv := &http.Server{Addr: port}
 	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		callbackHandler(w, r, srv, authConfig, uiConfig)
@@ -60,7 +60,7 @@ func createServer(authConfig *auth.Config, uiConfig *ui.Config) *http.Server {
 	return srv
 }
 
-func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, authConfig *auth.Config, uiConfig *ui.Config) {
+func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, authConfig *auth.Config, uiConfig *playbackUI.Config) {
 	authConfig.SetTokenFetchRequirements(
 		r.URL.Query().Get("code"),
 		r.URL.Query().Get("state"),
@@ -80,8 +80,8 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, aut
 			auth.CacheToken(tx, token)
 			return nil
 		})
-		ui.ResetTerminal()
-		ui.NewPlaybackComponent().Render(uiConfig)
+		playbackUI.ResetTerminal()
+		playbackUI.NewPlaybackComponent().Render(uiConfig)
 	}
 }
 
@@ -153,7 +153,7 @@ func main() {
 
 		defer tui.Close()
 
-		ui.NewWelcomeComponent().Render(&uiConfig)
+		playbackUI.NewWelcomeComponent().Render(&uiConfig)
 
 		// We need to attach our welcome component key handlers here
 		// to avoid cycle importing due to the server/callback handler
@@ -175,7 +175,7 @@ func main() {
 
 		defer tui.Close()
 
-		ui.NewPlaybackComponent().Render(&uiConfig)
+		playbackUI.NewPlaybackComponent().Render(&uiConfig)
 
 		tui.Loop()
 	}

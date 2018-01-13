@@ -1,4 +1,4 @@
-package ui
+package playbackUI
 
 import tui "github.com/gizak/termui"
 

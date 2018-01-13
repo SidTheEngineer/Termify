@@ -1,4 +1,4 @@
-package ui
+package playbackUI
 
 import (
 	"fmt"
