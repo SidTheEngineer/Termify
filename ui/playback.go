@@ -79,6 +79,7 @@ func (p Playback) Render(uiConfig *Config) {
 	controls := createControls(uiConfig)
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
 	trackProgressUI := createTrackProgressUI(uiConfig, progressInSeconds)
+	trackProgressGuage := createTrackProgressGuage(uiConfig, progressInSeconds)
 
 	if tui.Body != nil {
 		ResetTerminal()
@@ -93,6 +94,7 @@ func (p Playback) Render(uiConfig *Config) {
 		),
 		tui.NewRow(
 			tui.NewCol(3, 0, trackProgressUI),
+			tui.NewCol(5, 0, trackProgressGuage),
 		),
 	)
 
@@ -346,24 +348,42 @@ func updateCurrentlyPlayingUI(uiConfig *Config) {
 }
 
 func createTrackProgressUI(uiConfig *Config, progress int) *tui.Par {
-	trackDurationSecs := int(getTrackInformationFromJSON(uiConfig.context).DurationMs / 1000)
+	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
+	trackDurationSecs := int(trackDurationMs / 1000)
 	trackDurationMins := trackDurationSecs / 60
 	trackDurationRemaining := trackDurationSecs % 60
 
-	timeString := fmt.Sprintf("%d:%.2d/%d:%.2d", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
+	timeString := fmt.Sprintf("%11s%d:%.2d/%d:%.2d", " ", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
 	progressUI := tui.NewPar(timeString)
 	progressUI.Height = 3
 	progressUI.Border = true
 	progressUI.BorderFg = tui.ColorMagenta
+	progressUI.TextFgColor = tui.ColorYellow
 	progressUI.BorderLabel = "Progress"
 
 	return progressUI
 }
 
+func createTrackProgressGuage(uiConfig *Config, progress int) *tui.Gauge {
+	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
+	progressGuage := tui.NewGauge()
+	progressGuage.Height = 3
+	progressGuage.BarColor = tui.ColorYellow
+	progressGuage.BorderFg = tui.ColorMagenta
+	progressGuage.PercentColor = tui.ColorYellow
+	progressGuage.PercentColorHighlighted = tui.ColorMagenta
+	progressGuage.Label = "Progress"
+	progressGuage.Percent = int((float64(progress*1000) / trackDurationMs) * 100)
+
+	return progressGuage
+}
+
 func updateTrackProgressUI(uiConfig *Config, progress int) {
 	newProgressUI := createTrackProgressUI(uiConfig, progress)
+	newProgressGuage := createTrackProgressGuage(uiConfig, progress)
 
 	tui.Body.Rows[1].Cols[0] = tui.NewCol(3, 0, newProgressUI)
+	tui.Body.Rows[1].Cols[1] = tui.NewCol(5, 0, newProgressGuage)
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }
