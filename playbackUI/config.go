@@ -16,7 +16,7 @@ const (
 	exitText = "[ Q ] - Quit"
 
 	// NewLine can be used in termui lists and other components to be an "empty" text row
-	NewLine = "\n"
+	newLine = "\n"
 
 	playback    = "playback"
 	welcomeText = "Welcome to Termify!\n\n[ L ] - Start Spotify authorization\n" + exitText

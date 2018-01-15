@@ -54,6 +54,7 @@ func (p Playback) Render(uiConfig *Config) {
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
 	trackProgressTime := createTrackProgressTime(uiConfig, progressInSeconds)
 	trackProgressGuage := createTrackProgressGuage(uiConfig, progressInSeconds)
+	playingAnimationUI := createPlayingAnimationUI(progressInSeconds)
 
 	if tui.Body != nil {
 		ResetTerminal()
@@ -69,6 +70,9 @@ func (p Playback) Render(uiConfig *Config) {
 		tui.NewRow(
 			tui.NewCol(progressTimeWidth, 0, trackProgressTime),
 			tui.NewCol(progressGuageWidth, 0, trackProgressGuage),
+		),
+		tui.NewRow(
+			tui.NewCol(playingAnimationUIWidth, 0, playingAnimationUI),
 		),
 	)
 

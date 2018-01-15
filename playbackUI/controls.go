@@ -24,9 +24,9 @@ func createControls(uiConfig *Config) *tui.List {
 	controls.Height = controlsHeight
 	controls.ItemFgColor = tui.ColorYellow
 	controls.Items = []string{
-		NewLine,
-		ExitText,
-		NewLine,
+		newLine,
+		exitText,
+		newLine,
 		playChoice().Name,
 		pauseChoice().Name,
 		skipChoice().Name,

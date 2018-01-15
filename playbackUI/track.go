@@ -8,8 +8,8 @@ import (
 
 const (
 	progressTimeHeight  = 3
-	progressTimeWidth   = 5
-	progressGuageWidth  = 7
+	progressTimeWidth   = 3
+	progressGuageWidth  = 9
 	progressGuageHeight = 3
 )
 
@@ -45,7 +45,7 @@ func createTrackProgressTime(uiConfig *Config, progress int) *tui.Par {
 	trackDurationMins := trackDurationSecs / 60
 	trackDurationRemaining := trackDurationSecs % 60
 
-	timeString := fmt.Sprintf("%33s%d:%.2d/%d:%.2d", " ", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
+	timeString := fmt.Sprintf("%d:%.2d/%d:%.2d", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
 	progressTime := tui.NewPar(timeString)
 	progressTime.Height = progressTimeHeight
 	progressTime.Border = true

@@ -48,12 +48,12 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 	currentlyPlayingUI.BorderFg = tui.ColorMagenta
 	currentlyPlayingUI.Height = currentlyPlayingHeight
 	currentlyPlayingUI.Items = []string{
-		NewLine,
+		newLine,
 		deviceInfo.DeviceType + " - " + deviceInfo.Name,
-		NewLine + NewLine,
+		newLine + newLine,
 		trackInfo.Name,
 		trackInfo.Artists,
-		NewLine + NewLine,
+		newLine + newLine,
 		playingState,
 	}
 	currentlyPlayingUI.ItemFgColor = tui.ColorYellow
@@ -109,5 +109,6 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		// where necessary.
 		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
 		updatetrackProgressTime(uiConfig, progressInSeconds)
+		updatePlayingAnimationUI(progressInSeconds)
 	}
 }
