@@ -13,13 +13,13 @@ import (
 
 const (
 	// ExitText describes global exit text for the app
-	ExitText = "[ Q ] - Quit"
+	exitText = "[ Q ] - Quit"
 
 	// NewLine can be used in termui lists and other components to be an "empty" text row
 	NewLine = "\n"
 
 	playback    = "playback"
-	welcomeText = "Welcome to Termify!\n\nL - Start Spotify authorization\n" + ExitText
+	welcomeText = "Welcome to Termify!\n\n[ L ] - Start Spotify authorization\n" + exitText
 )
 
 // Config will hold all of the meta data about the current state of

@@ -25,6 +25,7 @@ const (
 	refreshTokenText    = "refreshToken"
 	tokenExpiresInText  = "tokenExpiresIn"
 	timeTokenCachedText = "timeTokenCached"
+	dbName              = "SpotfiyAuth.db"
 )
 
 var (
@@ -34,7 +35,7 @@ var (
 )
 
 func startDB() {
-	newDb, err := bolt.Open("SpotfiyAuth.db", 0600, &bolt.Options{Timeout: 5 * time.Second})
+	newDb, err := bolt.Open(dbName, 0600, &bolt.Options{Timeout: 5 * time.Second})
 
 	if err != nil {
 		log.Fatal(err)

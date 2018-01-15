@@ -32,20 +32,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		playingState = playingText
 		uiConfig.progressTicker = time.NewTicker(time.Millisecond * 1000)
 		uiConfig.timeElapsedFromTickerStart = 0
-		go func() {
-			for _ = range uiConfig.progressTicker.C {
-				uiConfig.timeElapsedFromTickerStart += 1000
-
-				if uiConfig.timeElapsedFromTickerStart+int(deviceInfo.ProgressMs) > int(trackInfo.DurationMs) {
-					uiConfig.progressTicker.Stop()
-					updateCurrentlyPlayingUI(uiConfig)
-				}
-				// TODO: Calculate progress into song based on needed variables. Use uiConfig
-				// where necessary.
-				progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
-				updatetrackProgressTime(uiConfig, progressInSeconds)
-			}
-		}()
+		go startTrackProgressTicker(uiConfig, trackInfo, deviceInfo)
 		// Skipping or going back a track always plays the track as well, so we will
 		// only reach this else if a pause choice is chosen.
 	} else {
@@ -108,4 +95,19 @@ func updateCurrentlyPlayingUI(uiConfig *Config) {
 	tui.Body.Rows[0].Cols[1] = tui.NewCol(currentlyPlayingWidth, 0, newCurrentlyPlayingUI)
 	tui.Body.Align()
 	tui.Render(tui.Body)
+}
+
+func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Device) {
+	for _ = range uiConfig.progressTicker.C {
+		uiConfig.timeElapsedFromTickerStart += 1000
+
+		if uiConfig.timeElapsedFromTickerStart+int(deviceInfo.ProgressMs) > int(trackInfo.DurationMs) {
+			uiConfig.progressTicker.Stop()
+			updateCurrentlyPlayingUI(uiConfig)
+		}
+		// TODO: Calculate progress into song based on needed variables. Use uiConfig
+		// where necessary.
+		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
+		updatetrackProgressTime(uiConfig, progressInSeconds)
+	}
 }
