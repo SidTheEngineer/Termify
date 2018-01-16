@@ -42,6 +42,9 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		}
 	}
 
+	progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
+	trackProgressTime := createTrackProgressTime(uiConfig, progressInSeconds)
+
 	currentlyPlayingUI := tui.NewList()
 	currentlyPlayingUI.Border = true
 	currentlyPlayingUI.BorderLabel = currentlyPlayingBorderLabel
@@ -55,6 +58,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		trackInfo.Artists,
 		newLine + newLine,
 		playingState,
+		trackProgressTime,
 	}
 	currentlyPlayingUI.ItemFgColor = themeTextFgColor
 
@@ -85,13 +89,23 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 	return jsonMap
 }
 
+func createTrackProgressTime(uiConfig *Config, progress int) string {
+	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
+	trackDurationSecs := int(trackDurationMs / 1000)
+	trackDurationMins := trackDurationSecs / 60
+	trackDurationRemaining := trackDurationSecs % 60
+
+	timeString := fmt.Sprintf("%d:%.2d/%d:%.2d", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
+
+	return timeString
+}
+
 func updateCurrentlyPlayingUI(uiConfig *Config) {
 	currentContext := getCurrentlyPlayingContext(uiConfig)
 	currentTrack := getTrackInformationFromJSON(currentContext)
 	deviceInfo := getDeviceInformationFromJSON(currentContext)
 	newCurrentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, currentTrack, deviceInfo)
 
-	// Currently Playing box is row 1, column 2
 	tui.Body.Rows[0].Cols[1] = tui.NewCol(currentlyPlayingWidth, 0, newCurrentlyPlayingUI)
 	tui.Body.Align()
 	tui.Render(tui.Body)
@@ -106,7 +120,8 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
-		updatetrackProgressTime(uiConfig, progressInSeconds)
+		updateTrackProgressGuage(uiConfig, progressInSeconds)
 		updatePlayingAnimationUI(progressInSeconds)
+		updateCurrentlyPlayingUI(uiConfig)
 	}
 }

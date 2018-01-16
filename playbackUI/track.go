@@ -1,15 +1,13 @@
 package playbackUI
 
 import (
-	"fmt"
-
 	tui "github.com/gizak/termui"
 )
 
 const (
-	progressTimeHeight  = 3
-	progressTimeWidth   = 3
-	progressGuageWidth  = 9
+	// progressTimeHeight  = 3
+	// progressTimeWidth   = 3
+	progressGuageWidth  = 12
 	progressGuageHeight = 3
 )
 
@@ -39,29 +37,10 @@ func getTrackInformationFromJSON(context map[string]interface{}) Track {
 	}
 }
 
-func createTrackProgressTime(uiConfig *Config, progress int) *tui.Par {
-	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
-	trackDurationSecs := int(trackDurationMs / 1000)
-	trackDurationMins := trackDurationSecs / 60
-	trackDurationRemaining := trackDurationSecs % 60
-
-	timeString := fmt.Sprintf("%d:%.2d/%d:%.2d", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
-	progressTime := tui.NewPar(timeString)
-	progressTime.Height = progressTimeHeight
-	progressTime.Border = true
-	progressTime.BorderFg = themeBorderFg
-	progressTime.TextFgColor = themeTextFgColor
-	progressTime.BorderLabel = "Progress"
-
-	return progressTime
-}
-
-func updatetrackProgressTime(uiConfig *Config, progress int) {
-	newProgressTime := createTrackProgressTime(uiConfig, progress)
+func updateTrackProgressGuage(uiConfig *Config, progress int) {
 	newProgressGuage := createTrackProgressGuage(uiConfig, progress)
 
-	tui.Body.Rows[1].Cols[0] = tui.NewCol(progressTimeWidth, 0, newProgressTime)
-	tui.Body.Rows[1].Cols[1] = tui.NewCol(progressGuageWidth, 0, newProgressGuage)
+	tui.Body.Rows[1].Cols[0] = tui.NewCol(progressGuageWidth, 0, newProgressGuage)
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }
