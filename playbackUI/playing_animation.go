@@ -28,8 +28,8 @@ func createPlayingAnimationUI(currentTime int) *tui.BarChart {
 	bars.Data = rand.Perm(100)
 	bars.DataLabels = barLabels
 	bars.Height = playingAnimationUIHeight
-	bars.BarColor = tui.ColorGreen
-	bars.BorderFg = tui.ColorMagenta
+	bars.BarColor = themeBarColor
+	bars.BorderFg = themeBorderFg
 
 	return bars
 }

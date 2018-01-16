@@ -19,10 +19,10 @@ const (
 func createControls(uiConfig *Config) *tui.List {
 	controls := tui.NewList()
 	controls.Border = true
-	controls.BorderFg = tui.ColorMagenta
+	controls.BorderFg = themeBorderFg
 	controls.BorderLabel = controlsBorderLabel
 	controls.Height = controlsHeight
-	controls.ItemFgColor = tui.ColorYellow
+	controls.ItemFgColor = themeTextFgColor
 	controls.Items = []string{
 		newLine,
 		exitText,

@@ -49,8 +49,8 @@ func createTrackProgressTime(uiConfig *Config, progress int) *tui.Par {
 	progressTime := tui.NewPar(timeString)
 	progressTime.Height = progressTimeHeight
 	progressTime.Border = true
-	progressTime.BorderFg = tui.ColorMagenta
-	progressTime.TextFgColor = tui.ColorYellow
+	progressTime.BorderFg = themeBorderFg
+	progressTime.TextFgColor = themeTextFgColor
 	progressTime.BorderLabel = "Progress"
 
 	return progressTime
@@ -70,10 +70,10 @@ func createTrackProgressGuage(uiConfig *Config, progress int) *tui.Gauge {
 	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
 	progressGuage := tui.NewGauge()
 	progressGuage.Height = 3
-	progressGuage.BarColor = tui.ColorYellow
-	progressGuage.BorderFg = tui.ColorMagenta
-	progressGuage.PercentColor = tui.ColorYellow
-	progressGuage.PercentColorHighlighted = tui.ColorMagenta
+	progressGuage.BarColor = themeProgressGuageColor
+	progressGuage.BorderFg = themeBorderFg
+	progressGuage.PercentColor = themePercentColor
+	progressGuage.PercentColorHighlighted = themePercentColorHighlighted
 	progressGuage.Percent = int((float64(progress*1000) / trackDurationMs) * 100)
 
 	return progressGuage

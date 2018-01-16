@@ -56,7 +56,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		newLine + newLine,
 		playingState,
 	}
-	currentlyPlayingUI.ItemFgColor = tui.ColorYellow
+	currentlyPlayingUI.ItemFgColor = themeTextFgColor
 
 	return currentlyPlayingUI
 }
@@ -105,8 +105,6 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 			uiConfig.progressTicker.Stop()
 			updateCurrentlyPlayingUI(uiConfig)
 		}
-		// TODO: Calculate progress into song based on needed variables. Use uiConfig
-		// where necessary.
 		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
 		updatetrackProgressTime(uiConfig, progressInSeconds)
 		updatePlayingAnimationUI(progressInSeconds)
