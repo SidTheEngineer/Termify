@@ -90,7 +90,7 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 }
 
 func createTrackProgressTime(uiConfig *Config, progress int) string {
-	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
+	trackDurationMs := getTrackInformationFromJSON(uiConfig, uiConfig.context).DurationMs
 	trackDurationSecs := int(trackDurationMs / 1000)
 	trackDurationMins := trackDurationSecs / 60
 	trackDurationRemaining := trackDurationSecs % 60
@@ -102,8 +102,8 @@ func createTrackProgressTime(uiConfig *Config, progress int) string {
 
 func updateCurrentlyPlayingUI(uiConfig *Config) {
 	currentContext := getCurrentlyPlayingContext(uiConfig)
-	currentTrack := getTrackInformationFromJSON(currentContext)
-	deviceInfo := getDeviceInformationFromJSON(currentContext)
+	currentTrack := getTrackInformationFromJSON(uiConfig, currentContext)
+	deviceInfo := getDeviceInformationFromJSON(uiConfig, currentContext)
 	newCurrentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, currentTrack, deviceInfo)
 
 	tui.Body.Rows[0].Cols[1] = tui.NewCol(currentlyPlayingWidth, 0, newCurrentlyPlayingUI)
@@ -122,6 +122,8 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
 		updateTrackProgressGuage(uiConfig, progressInSeconds)
 		updatePlayingAnimationUI(progressInSeconds)
+
+		// Update currently playing every tick for the timer to work
 		updateCurrentlyPlayingUI(uiConfig)
 	}
 }

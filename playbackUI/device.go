@@ -7,16 +7,19 @@ type Device struct {
 	IsPlaying        bool
 }
 
-func getDeviceInformationFromJSON(context map[string]interface{}) Device {
+func getDeviceInformationFromJSON(uiConfig *Config, context map[string]interface{}) Device {
 	deviceName := context["device"].(map[string]interface{})["name"].(string)
 	deviceType := context["device"].(map[string]interface{})["type"].(string)
 	progressMs := context["progress_ms"].(float64)
 	isPlaying := context["is_playing"].(bool)
 
-	return Device{
+	currentDevice := Device{
 		Name:       deviceName,
 		DeviceType: deviceType,
 		ProgressMs: progressMs,
 		IsPlaying:  isPlaying,
 	}
+
+	uiConfig.currentDevice = currentDevice
+	return currentDevice
 }

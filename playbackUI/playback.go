@@ -45,8 +45,8 @@ func (p Playback) Render(uiConfig *Config) {
 
 	// TODO: This line can throw a 'panic: interface conversion: interface {} is nil, not map[string]interface {}'
 	// and needs to be fixed. I think this error arises when there are no tracks in the spotify player to begin with.
-	trackInfo := getTrackInformationFromJSON(contextJSON)
-	deviceInfo := getDeviceInformationFromJSON(contextJSON)
+	trackInfo := getTrackInformationFromJSON(uiConfig, contextJSON)
+	deviceInfo := getDeviceInformationFromJSON(uiConfig, contextJSON)
 
 	progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
 

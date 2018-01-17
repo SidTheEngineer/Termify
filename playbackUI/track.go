@@ -17,7 +17,7 @@ type Track struct {
 	DurationMs    float64
 }
 
-func getTrackInformationFromJSON(context map[string]interface{}) Track {
+func getTrackInformationFromJSON(uiConfig *Config, context map[string]interface{}) Track {
 	trackArtists := ""
 	trackName := context["item"].(map[string]interface{})["name"].(string)
 	durationMs := context["item"].(map[string]interface{})["duration_ms"].(float64)
@@ -30,11 +30,14 @@ func getTrackInformationFromJSON(context map[string]interface{}) Track {
 		}
 	}
 
-	return Track{
+	currentTrack := Track{
 		Name:       trackName,
 		Artists:    trackArtists,
 		DurationMs: durationMs,
 	}
+
+	uiConfig.currentTrack = currentTrack
+	return currentTrack
 }
 
 func updateTrackProgressGuage(uiConfig *Config, progress int) {
@@ -46,7 +49,7 @@ func updateTrackProgressGuage(uiConfig *Config, progress int) {
 }
 
 func createTrackProgressGuage(uiConfig *Config, progress int) *tui.Gauge {
-	trackDurationMs := getTrackInformationFromJSON(uiConfig.context).DurationMs
+	trackDurationMs := getTrackInformationFromJSON(uiConfig, uiConfig.context).DurationMs
 	progressGuage := tui.NewGauge()
 	progressGuage.Height = 3
 	progressGuage.BarColor = themeProgressGuageColor
