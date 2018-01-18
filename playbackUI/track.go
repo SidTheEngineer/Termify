@@ -19,7 +19,7 @@ type Track struct {
 
 func getTrackInformationFromJSON(uiConfig *Config, context map[string]interface{}) Track {
 	// This state can be reached when there is no context information returned from Spotify's end.
-	if context == nil {
+	if context["item"] == nil {
 		return Track{
 			Name:       "NO CURRENT TRACK INFORMATION, START SPOTIFY.",
 			Artists:    "",
