@@ -81,7 +81,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, aut
 			auth.CacheToken(tx, token)
 			return nil
 		})
-		playbackUI.ResetTerminal()
+		util.ResetTerminal()
 		playbackUI.NewPlaybackComponent().Render(uiConfig)
 	}
 }

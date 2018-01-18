@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/SidTheEngineer/Termify/auth"
-
-	tui "github.com/gizak/termui"
 )
 
 const (
@@ -97,9 +95,4 @@ func (c Choice) SendAPIRequest(req *http.Request) *http.Response {
 // CurrentView returns the View that Termify is currently displaying.
 func (c *Config) CurrentView() View {
 	return c.currentView
-}
-
-// ResetTerminal resets the current ui rows that are being displayed
-func ResetTerminal() {
-	tui.Body.Rows = tui.Body.Rows[:0]
 }

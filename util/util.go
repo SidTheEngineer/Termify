@@ -2,6 +2,8 @@ package util
 
 import (
 	"math/rand"
+
+	tui "github.com/gizak/termui"
 )
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -33,4 +35,9 @@ func IsNil(arrays ...[]byte) bool {
 		}
 	}
 	return false
+}
+
+// ResetTerminal resets the current ui rows that are being displayed
+func ResetTerminal() {
+	tui.Body.Rows = tui.Body.Rows[:0]
 }

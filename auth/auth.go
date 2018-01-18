@@ -170,6 +170,11 @@ func createSpotifyAuthURL() string {
 
 func addAuthQueryParams(req *http.Request) {
 	clientID, _ := GetClientIDAndSecret()
+
+	if clientID == "" {
+		log.Fatal("\n\nEnvironment variable SPOTIFY_CLIENT not set.")
+	}
+
 	q := req.URL.Query()
 	q.Add("client_id", clientID)
 	q.Add("response_type", "code")
@@ -189,6 +194,11 @@ func addTokenQueryParams(req *http.Request, code string) {
 
 func addTokenHeaders(req *http.Request) {
 	clientID, clientSecret := GetClientIDAndSecret()
+
+	if clientID == "" || clientSecret == "" {
+		log.Fatal("\n\nEnvironment variable SPOTIFY_CLIENT or SPOTIFY_SECRET not set.")
+	}
+
 	req.Header.Add("Authorization", "Basic "+b64.StdEncoding.EncodeToString([]byte(clientID+":"+clientSecret)))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept", "application/json")

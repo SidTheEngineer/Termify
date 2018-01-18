@@ -1,6 +1,7 @@
 package playbackUI
 
 import (
+	"github.com/SidTheEngineer/Termify/util"
 	tui "github.com/gizak/termui"
 )
 
@@ -42,9 +43,6 @@ func (p Playback) Render(uiConfig *Config) {
 
 	contextJSON := getCurrentlyPlayingContext(uiConfig)
 	uiConfig.SetCurrentlyPlayingContext(contextJSON)
-
-	// TODO: This line can throw a 'panic: interface conversion: interface {} is nil, not map[string]interface {}'
-	// and needs to be fixed. I think this error arises when there are no tracks in the spotify player to begin with.
 	trackInfo := getTrackInformationFromJSON(uiConfig, contextJSON)
 	deviceInfo := getDeviceInformationFromJSON(uiConfig, contextJSON)
 
@@ -56,7 +54,7 @@ func (p Playback) Render(uiConfig *Config) {
 	playingAnimationUI := createPlayingAnimationUI(progressInSeconds)
 
 	if tui.Body != nil {
-		ResetTerminal()
+		util.ResetTerminal()
 	} else {
 		tui.Init()
 	}
