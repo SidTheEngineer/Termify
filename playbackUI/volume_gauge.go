@@ -16,7 +16,7 @@ func createVolumeGauge(uiConfig *Config) *tui.Gauge {
 	volumeGauge.BorderFg = themeBorderFg
 	volumeGauge.PercentColor = themePercentColor
 	volumeGauge.PercentColorHighlighted = tui.ColorWhite
-	volumeGauge.Percent = 50
+	volumeGauge.Percent = int(uiConfig.currentDevice.Volume)
 
 	return volumeGauge
 }

@@ -7,13 +7,15 @@ import (
 )
 
 const (
-	controlsBorderLabel    = "Controls"
-	controlsWidth          = 5
-	controlsHeight         = 10
-	playChoiceNameText     = "[ 1 ] - Play"
-	pauseChoiceNameText    = "[ 2 ] - Pause"
-	previousChoiceNameText = "[ 3 ] - Previous"
-	nextChoiceNameText     = "[ 4 ] - Next"
+	controlsBorderLabel      = "Controls"
+	controlsWidth            = 5
+	controlsHeight           = 10
+	playChoiceNameText       = "[ 1 ] - Play"
+	pauseChoiceNameText      = "[ 2 ] - Pause"
+	previousChoiceNameText   = "[ 3 ] - Previous"
+	nextChoiceNameText       = "[ 4 ] - Next"
+	volumeDownChoiceNameText = "[ 5 ] - Vol. Down"
+	volumeUpChoiceNameText   = "[ 6 ] - Vol. Up"
 )
 
 func createControls(uiConfig *Config) *tui.List {
@@ -27,7 +29,7 @@ func createControls(uiConfig *Config) *tui.List {
 		newLine,
 		exitText,
 		newLine,
-		playChoice().Name,
+		playChoice().Name + " " + volumeDownChoice(uiConfig).Name,
 		pauseChoice().Name,
 		skipChoice().Name,
 		backChoice().Name,
@@ -43,7 +45,7 @@ func createControls(uiConfig *Config) *tui.List {
 }
 
 func attachControlsHandlers(uiConfig *Config) {
-	playbackChoices := NewPlaybackComponent().view.Choices
+	playbackChoices := NewPlaybackComponent(uiConfig).view.Choices
 
 	// Unfortunately, these have to be hardcoded. Handle() breaks when trying to
 	// attach in a loop.
@@ -100,6 +102,16 @@ func attachControlsHandlers(uiConfig *Config) {
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 	})
+
+	tui.Handle(volDownKey, func(e tui.Event) {
+		req := playbackChoices[4].CreateAPIRequest(uiConfig.AccessToken)
+		res := playbackChoices[4].SendAPIRequest(req)
+
+		if res.StatusCode == 204 {
+			time.Sleep(updateUIWaitTime * time.Millisecond)
+			updateCurrentlyPlayingUI(uiConfig)
+		}
+	})
 }
 
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
@@ -138,6 +150,18 @@ func backChoice() Choice {
 		Name:         nextChoiceNameText,
 		APIRoute:     "https://api.spotify.com/v1/me/player/next",
 		APIMethod:    "POST",
+		ResponseType: "",
+	}
+}
+
+// https://developer.spotify.com/web-api/set-volume-for-users-playback/
+func volumeDownChoice(uiConfig *Config) Choice {
+	apiRoute := "https://api.spotify.com/v1/me/player/volume?volume_percent="
+	newVolume := string(int(uiConfig.currentDevice.Volume - 10))
+	return Choice{
+		Name:         volumeDownChoiceNameText,
+		APIRoute:     apiRoute + newVolume,
+		APIMethod:    "PUT",
 		ResponseType: "",
 	}
 }

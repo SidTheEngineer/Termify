@@ -11,6 +11,7 @@ const (
 	pauseKey         = "sys/kbd/2"
 	prevKey          = "sys/kbd/3"
 	nextKey          = "sys/kbd/4"
+	volDownKey       = "sys/kbd/5"
 	quitKey          = "sys/kbd/q"
 )
 
@@ -22,7 +23,7 @@ type Playback struct {
 
 // NewPlaybackComponent returns a new component that contains
 // all of the UI related to music playback, such as playing, pausing, current song, etc..
-func NewPlaybackComponent() Playback {
+func NewPlaybackComponent(uiConfig *Config) Playback {
 	return Playback{
 		view: View{
 			Name: "playback",
@@ -31,6 +32,7 @@ func NewPlaybackComponent() Playback {
 				pauseChoice(),
 				skipChoice(),
 				backChoice(),
+				volumeDownChoice(uiConfig),
 			},
 		},
 	}

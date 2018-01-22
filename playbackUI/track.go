@@ -17,6 +17,8 @@ type Track struct {
 	DurationMs    float64
 }
 
+// TODO: This still has that bug where no track is in the player. "interface{} is type
+// nil and not map[string]interface{}
 func getTrackInformationFromJSON(uiConfig *Config, context map[string]interface{}) Track {
 	// This state can be reached when there is no context information returned from Spotify's end.
 	if context["item"] == nil {

@@ -82,7 +82,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, aut
 			return nil
 		})
 		util.ResetTerminal()
-		playbackUI.NewPlaybackComponent().Render(uiConfig)
+		playbackUI.NewPlaybackComponent(uiConfig).Render(uiConfig)
 	}
 }
 
@@ -176,7 +176,7 @@ func main() {
 
 		defer tui.Close()
 
-		playbackUI.NewPlaybackComponent().Render(&uiConfig)
+		playbackUI.NewPlaybackComponent(&uiConfig).Render(&uiConfig)
 
 		tui.Loop()
 	}

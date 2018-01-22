@@ -5,13 +5,13 @@ type Device struct {
 	Name, DeviceType string
 	ProgressMs       float64
 	IsPlaying        bool
-	Volume           int
+	Volume           float64
 }
 
 func getDeviceInformationFromJSON(uiConfig *Config, context map[string]interface{}) Device {
 	deviceName := context["device"].(map[string]interface{})["name"].(string)
 	deviceType := context["device"].(map[string]interface{})["type"].(string)
-	// deviceVolume := context["device"].(map[string]interface{})["volume_percent"].(int)
+	deviceVolume := context["device"].(map[string]interface{})["volume_percent"].(float64)
 	progressMs := context["progress_ms"].(float64)
 	isPlaying := context["is_playing"].(bool)
 
@@ -20,7 +20,7 @@ func getDeviceInformationFromJSON(uiConfig *Config, context map[string]interface
 		DeviceType: deviceType,
 		ProgressMs: progressMs,
 		IsPlaying:  isPlaying,
-		// Volume:     deviceVolume,
+		Volume:     deviceVolume,
 	}
 
 	uiConfig.currentDevice = currentDevice
