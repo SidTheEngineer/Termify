@@ -50,7 +50,8 @@ func (p Playback) Render(uiConfig *Config) {
 
 	controls := createControls(uiConfig)
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
-	trackProgressGuage := createTrackProgressGuage(uiConfig, progressInSeconds)
+	trackProgressGuage := createTrackProgressGauge(uiConfig, progressInSeconds)
+	volumeGauge := createVolumeGauge(uiConfig)
 	playingAnimationUI := createPlayingAnimationUI(progressInSeconds)
 
 	if tui.Body != nil {
@@ -66,6 +67,9 @@ func (p Playback) Render(uiConfig *Config) {
 		),
 		tui.NewRow(
 			tui.NewCol(progressGuageWidth, 0, trackProgressGuage),
+		),
+		tui.NewRow(
+			tui.NewCol(volumeGuageWidth, 0, volumeGauge),
 		),
 		tui.NewRow(
 			tui.NewCol(playingAnimationUIWidth, 0, playingAnimationUI),

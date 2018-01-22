@@ -37,7 +37,7 @@ func createPlayingAnimationUI(currentTime int) *tui.BarChart {
 func updatePlayingAnimationUI(currentTime int) {
 	newPlayingAnimationUI := createPlayingAnimationUI(currentTime)
 
-	tui.Body.Rows[2].Cols[0] = tui.NewCol(playingAnimationUIWidth, 0, newPlayingAnimationUI)
+	tui.Body.Rows[3].Cols[0] = tui.NewCol(playingAnimationUIWidth, 0, newPlayingAnimationUI)
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }

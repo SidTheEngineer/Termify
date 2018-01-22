@@ -49,15 +49,15 @@ func getTrackInformationFromJSON(uiConfig *Config, context map[string]interface{
 	return currentTrack
 }
 
-func updateTrackProgressGuage(uiConfig *Config, progress int) {
-	newProgressGuage := createTrackProgressGuage(uiConfig, progress)
+func updateTrackProgressGauge(uiConfig *Config, progress int) {
+	newProgressGuage := createTrackProgressGauge(uiConfig, progress)
 
 	tui.Body.Rows[1].Cols[0] = tui.NewCol(progressGuageWidth, 0, newProgressGuage)
 	tui.Body.Align()
 	tui.Render(tui.Body)
 }
 
-func createTrackProgressGuage(uiConfig *Config, progress int) *tui.Gauge {
+func createTrackProgressGauge(uiConfig *Config, progress int) *tui.Gauge {
 	trackDurationMs := getTrackInformationFromJSON(uiConfig, uiConfig.context).DurationMs
 	progressGuage := tui.NewGauge()
 	progressGuage.Height = 3

@@ -141,3 +141,7 @@ func backChoice() Choice {
 		ResponseType: "",
 	}
 }
+
+// TODO: Make a volume up and volume down choice that increments/decrements the current
+// device volume by 10. Whenever this keypress is handled, the volume bar ui will need to be
+// updated accordingly.

@@ -120,7 +120,7 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
-		updateTrackProgressGuage(uiConfig, progressInSeconds)
+		updateTrackProgressGauge(uiConfig, progressInSeconds)
 		updatePlayingAnimationUI(progressInSeconds)
 
 		// Update currently playing every tick for the timer to work
