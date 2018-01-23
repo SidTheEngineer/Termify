@@ -33,6 +33,7 @@ func NewPlaybackComponent(uiConfig *Config) Playback {
 				skipChoice(),
 				backChoice(),
 				volumeDownChoice(uiConfig),
+				volumeUpChoice(uiConfig),
 			},
 		},
 	}
@@ -46,6 +47,9 @@ func (p Playback) Render(uiConfig *Config) {
 	contextJSON := getCurrentlyPlayingContext(uiConfig)
 	uiConfig.SetCurrentlyPlayingContext(contextJSON)
 	trackInfo := getTrackInformationFromJSON(uiConfig, contextJSON)
+
+	// TODO: The interface nil bug is still here!
+	// "panic: interface conversion: interface {} is nil, not float64"
 	deviceInfo := getDeviceInformationFromJSON(uiConfig, contextJSON)
 
 	progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000

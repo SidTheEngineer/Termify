@@ -26,13 +26,14 @@ func createControls(uiConfig *Config) *tui.List {
 	controls.Height = controlsHeight
 	controls.ItemFgColor = themeTextFgColor
 	controls.Items = []string{
-		newLine,
 		exitText,
 		newLine,
-		playChoice().Name + " " + volumeDownChoice(uiConfig).Name,
+		playChoice().Name,
 		pauseChoice().Name,
 		skipChoice().Name,
 		backChoice().Name,
+		volumeDownChoice(uiConfig).Name,
+		volumeUpChoice(uiConfig).Name,
 	}
 
 	tui.Handle(quitKey, func(tui.Event) {
@@ -160,6 +161,17 @@ func volumeDownChoice(uiConfig *Config) Choice {
 	newVolume := string(int(uiConfig.currentDevice.Volume - 10))
 	return Choice{
 		Name:         volumeDownChoiceNameText,
+		APIRoute:     apiRoute + newVolume,
+		APIMethod:    "PUT",
+		ResponseType: "",
+	}
+}
+
+func volumeUpChoice(uiConfig *Config) Choice {
+	apiRoute := "https://api.spotify.com/v1/me/player/volume?volume_percent="
+	newVolume := string(int(uiConfig.currentDevice.Volume + 10))
+	return Choice{
+		Name:         volumeUpChoiceNameText,
 		APIRoute:     apiRoute + newVolume,
 		APIMethod:    "PUT",
 		ResponseType: "",
