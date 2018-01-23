@@ -101,6 +101,9 @@ func createTrackProgressTime(uiConfig *Config, progress int) string {
 }
 
 func updateCurrentlyPlayingUI(uiConfig *Config) {
+	// TODO: Find a way to only fetch these if we need them (i.e. when we next a track
+	// back a track, etc.), may need to pass the event and fetch upon what type of event
+	// it was.
 	currentContext := getCurrentlyPlayingContext(uiConfig)
 	currentTrack := getTrackInformationFromJSON(uiConfig, currentContext)
 	deviceInfo := getDeviceInformationFromJSON(uiConfig, currentContext)

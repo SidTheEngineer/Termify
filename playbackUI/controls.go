@@ -1,6 +1,7 @@
 package playbackUI
 
 import (
+	"strconv"
 	"time"
 
 	tui "github.com/gizak/termui"
@@ -113,6 +114,16 @@ func attachControlsHandlers(uiConfig *Config) {
 			updateCurrentlyPlayingUI(uiConfig)
 		}
 	})
+
+	tui.Handle(volUpKey, func(e tui.Event) {
+		req := playbackChoices[5].CreateAPIRequest(uiConfig.AccessToken)
+		res := playbackChoices[5].SendAPIRequest(req)
+
+		if res.StatusCode == 204 {
+			time.Sleep(updateUIWaitTime * time.Millisecond)
+			updateCurrentlyPlayingUI(uiConfig)
+		}
+	})
 }
 
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
@@ -158,7 +169,7 @@ func backChoice() Choice {
 // https://developer.spotify.com/web-api/set-volume-for-users-playback/
 func volumeDownChoice(uiConfig *Config) Choice {
 	apiRoute := "https://api.spotify.com/v1/me/player/volume?volume_percent="
-	newVolume := string(int(uiConfig.currentDevice.Volume - 10))
+	newVolume := strconv.Itoa(int(uiConfig.currentDevice.Volume - 10))
 	return Choice{
 		Name:         volumeDownChoiceNameText,
 		APIRoute:     apiRoute + newVolume,
@@ -169,7 +180,7 @@ func volumeDownChoice(uiConfig *Config) Choice {
 
 func volumeUpChoice(uiConfig *Config) Choice {
 	apiRoute := "https://api.spotify.com/v1/me/player/volume?volume_percent="
-	newVolume := string(int(uiConfig.currentDevice.Volume + 10))
+	newVolume := strconv.Itoa(int(uiConfig.currentDevice.Volume + 10))
 	return Choice{
 		Name:         volumeUpChoiceNameText,
 		APIRoute:     apiRoute + newVolume,

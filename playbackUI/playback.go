@@ -6,12 +6,13 @@ import (
 )
 
 const (
-	updateUIWaitTime = 100
+	updateUIWaitTime = 250
 	playKey          = "sys/kbd/1"
 	pauseKey         = "sys/kbd/2"
 	prevKey          = "sys/kbd/3"
 	nextKey          = "sys/kbd/4"
 	volDownKey       = "sys/kbd/5"
+	volUpKey         = "sys/kbd/6"
 	quitKey          = "sys/kbd/q"
 )
 
