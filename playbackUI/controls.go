@@ -106,22 +106,26 @@ func attachControlsHandlers(uiConfig *Config) {
 	})
 
 	tui.Handle(volDownKey, func(e tui.Event) {
-		req := playbackChoices[4].CreateAPIRequest(uiConfig.AccessToken)
-		res := playbackChoices[4].SendAPIRequest(req)
-
+		req := volumeDownChoice(uiConfig).CreateAPIRequest(uiConfig.AccessToken)
+		res := volumeDownChoice(uiConfig).SendAPIRequest(req)
 		if res.StatusCode == 204 {
 			time.Sleep(updateUIWaitTime * time.Millisecond)
-			updateCurrentlyPlayingUI(uiConfig)
+
+			// TODO: Check for < 0 or > 100
+			updateVolumeGauge(uiConfig, -10)
+			uiConfig.currentDevice.Volume = uiConfig.currentDevice.Volume - 10
 		}
 	})
 
 	tui.Handle(volUpKey, func(e tui.Event) {
-		req := playbackChoices[5].CreateAPIRequest(uiConfig.AccessToken)
-		res := playbackChoices[5].SendAPIRequest(req)
-
+		req := volumeUpChoice(uiConfig).CreateAPIRequest(uiConfig.AccessToken)
+		res := volumeUpChoice(uiConfig).SendAPIRequest(req)
 		if res.StatusCode == 204 {
 			time.Sleep(updateUIWaitTime * time.Millisecond)
-			updateCurrentlyPlayingUI(uiConfig)
+
+			// TODO: Check for < 0 or > 100
+			updateVolumeGauge(uiConfig, 10)
+			uiConfig.currentDevice.Volume = uiConfig.currentDevice.Volume + 10
 		}
 	})
 }
@@ -170,9 +174,10 @@ func backChoice() Choice {
 func volumeDownChoice(uiConfig *Config) Choice {
 	apiRoute := "https://api.spotify.com/v1/me/player/volume?volume_percent="
 	newVolume := strconv.Itoa(int(uiConfig.currentDevice.Volume - 10))
+	deviceIDParam := "&device_id=" + uiConfig.currentDevice.ID
 	return Choice{
 		Name:         volumeDownChoiceNameText,
-		APIRoute:     apiRoute + newVolume,
+		APIRoute:     apiRoute + newVolume + deviceIDParam,
 		APIMethod:    "PUT",
 		ResponseType: "",
 	}
@@ -181,14 +186,11 @@ func volumeDownChoice(uiConfig *Config) Choice {
 func volumeUpChoice(uiConfig *Config) Choice {
 	apiRoute := "https://api.spotify.com/v1/me/player/volume?volume_percent="
 	newVolume := strconv.Itoa(int(uiConfig.currentDevice.Volume + 10))
+	deviceIDParam := "&device_id=" + uiConfig.currentDevice.ID
 	return Choice{
 		Name:         volumeUpChoiceNameText,
-		APIRoute:     apiRoute + newVolume,
+		APIRoute:     apiRoute + newVolume + deviceIDParam,
 		APIMethod:    "PUT",
 		ResponseType: "",
 	}
 }
-
-// TODO: Make a volume up and volume down choice that increments/decrements the current
-// device volume by 10. Whenever this keypress is handled, the volume bar ui will need to be
-// updated accordingly.
