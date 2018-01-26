@@ -86,13 +86,20 @@ func callbackHandler(w http.ResponseWriter, r *http.Request, s *http.Server, aut
 	}
 }
 
-func main() {
-	needToLogin := false
+func attachLoginHandlers() {
+	tui.Handle("/sys/kbd/q", func(tui.Event) {
+		tui.StopLoop()
+	})
 
-	startDB()
-	defer db.Close()
+	tui.Handle("/sys/kbd/l", func(tui.Event) {
+		go auth.Authorize()
+		srv := createServer(&authConfig, &uiConfig)
+		startServer(srv)
+	})
+}
 
-	// TODO: Could probably extract this db setup stuff to its own function or file.
+func isLoggedIn() bool {
+	loggedIn := true
 	db.Batch(func(tx *bolt.Tx) error {
 		authBucket := tx.Bucket([]byte("auth"))
 		accessToken := authBucket.Get([]byte(accessTokenText))
@@ -143,31 +150,26 @@ func main() {
 			// TODO: Return error that might be generated
 			return nil
 		}
-		needToLogin = true
+		loggedIn = false
 		return nil
 	})
+	return loggedIn
+}
 
-	if needToLogin {
+func main() {
+	startDB()
+	defer db.Close()
+
+	isLoggedIn := isLoggedIn()
+
+	if !isLoggedIn {
 		if err := tui.Init(); err != nil {
 			log.Fatal(err)
 		}
 
 		defer tui.Close()
-
 		playbackUI.NewWelcomeComponent().Render(&uiConfig)
-
-		// We need to attach our welcome component key handlers here
-		// to avoid cycle importing due to the server/callback handler
-		// requiring stuff from ui package
-		tui.Handle("/sys/kbd/q", func(tui.Event) {
-			tui.StopLoop()
-		})
-
-		tui.Handle("/sys/kbd/l", func(tui.Event) {
-			go auth.Authorize()
-			srv := createServer(&authConfig, &uiConfig)
-			startServer(srv)
-		})
+		attachLoginHandlers()
 		tui.Loop()
 	} else {
 		if err := tui.Init(); err != nil {
@@ -175,9 +177,7 @@ func main() {
 		}
 
 		defer tui.Close()
-
 		playbackUI.NewPlaybackComponent(&uiConfig).Render(&uiConfig)
-
 		tui.Loop()
 	}
 }
