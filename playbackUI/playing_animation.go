@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	playingAnimationUIHeight = 12
+	playingAnimationUIHeight = 10
 	playingAnimationUIWidth  = 12
 )
 

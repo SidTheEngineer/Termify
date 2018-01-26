@@ -8,7 +8,7 @@ const (
 	themeBarColor                = tui.ColorGreen
 	themeProgressGuageColor      = tui.ColorYellow
 	themePercentColor            = tui.ColorYellow
-	themePercentColorHighlighted = tui.ColorMagenta
+	themePercentColorHighlighted = tui.ColorBlack
 	themeVolumeGaugeColor        = tui.ColorMagenta
 
 	// By default, the border label Fg is green, so they aren't being set throughout

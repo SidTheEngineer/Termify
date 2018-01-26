@@ -34,7 +34,8 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 			uiConfig.visualsTicker.Stop()
 		}
 
-		// Adjust this according to how fast you'd want the visuals to update.
+		// Adjust this according to how fast you'd want the visuals to update. BPM / 60 = how many
+		// times the ticker needs to tick per second (multiplied by 1000 for milliseconds).
 		visualsTickTime := time.Duration(int(1000 / (uiConfig.currentTrack.BPM / 60)))
 
 		playingState = playingText
@@ -55,9 +56,6 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		}
 	}
 
-	// progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
-	// trackProgressTime := createTrackProgressTime(uiConfig, progressInSeconds)
-
 	currentlyPlayingUI := tui.NewList()
 	currentlyPlayingUI.Border = true
 	currentlyPlayingUI.BorderLabel = currentlyPlayingBorderLabel
@@ -71,7 +69,6 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		trackInfo.Artists,
 		newLine + newLine,
 		playingState,
-		// trackProgressTime,
 	}
 	currentlyPlayingUI.ItemFgColor = themeTextFgColor
 
@@ -102,17 +99,6 @@ func getCurrentlyPlayingContext(uiConfig *Config) map[string]interface{} {
 	return jsonMap
 }
 
-func createTrackProgressTime(uiConfig *Config, progress int) string {
-	trackDurationMs := getTrackInformationFromJSON(uiConfig, uiConfig.context).DurationMs
-	trackDurationSecs := int(trackDurationMs / 1000)
-	trackDurationMins := trackDurationSecs / 60
-	trackDurationRemaining := trackDurationSecs % 60
-
-	timeString := fmt.Sprintf("%d:%.2d/%d:%.2d", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
-
-	return timeString
-}
-
 func updateCurrentlyPlayingUI(uiConfig *Config) {
 	// TODO: Find a way to only fetch these if we need them (i.e. when we next a track
 	// back a track, etc.), may need to pass the event and fetch upon what type of event
@@ -137,11 +123,6 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		}
 		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
 		updateTrackProgressGauge(uiConfig, progressInSeconds)
-
-		// TODO: Remove the current track time from the currently playing component so it doesn't
-		// interfere with visuals ticker getting reset over and over.
-		// Update currently playing every tick for the timer to work
-		// updateCurrentlyPlayingUI(uiConfig)
 	}
 }
 

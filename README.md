@@ -3,5 +3,5 @@ Termify is a dashboard that allows you to control Spotify playback from the term
 
 <br />
 <p align="center">
-    <img src="./screenshots/playback.gif"/>
+    <img src="./screenshots/screenshot.png"/>
 </p>

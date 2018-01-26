@@ -76,14 +76,6 @@ func getTrackInformationFromJSON(uiConfig *Config, context map[string]interface{
 	return currentTrack
 }
 
-func updateTrackProgressGauge(uiConfig *Config, progress int) {
-	newProgressGuage := createTrackProgressGauge(uiConfig, progress)
-
-	tui.Body.Rows[1].Cols[0] = tui.NewCol(progressGuageWidth, 0, newProgressGuage)
-	tui.Body.Align()
-	tui.Render(tui.Body)
-}
-
 func createTrackProgressGauge(uiConfig *Config, progress int) *tui.Gauge {
 	trackDurationMs := getTrackInformationFromJSON(uiConfig, uiConfig.context).DurationMs
 	progressGuage := tui.NewGauge()
@@ -94,6 +86,26 @@ func createTrackProgressGauge(uiConfig *Config, progress int) *tui.Gauge {
 	progressGuage.PercentColorHighlighted = themePercentColorHighlighted
 	progressGuage.BorderLabel = "Progress"
 	progressGuage.Percent = int((float64(progress*1000) / trackDurationMs) * 100)
+	progressGuage.Label = createTrackProgressTimeString(uiConfig, progress)
 
 	return progressGuage
+}
+
+func createTrackProgressTimeString(uiConfig *Config, progress int) string {
+	trackDurationMs := getTrackInformationFromJSON(uiConfig, uiConfig.context).DurationMs
+	trackDurationSecs := int(trackDurationMs / 1000)
+	trackDurationMins := trackDurationSecs / 60
+	trackDurationRemaining := trackDurationSecs % 60
+
+	timeString := fmt.Sprintf("%d:%.2d/%d:%.2d", progress/60, progress%60, trackDurationMins, trackDurationRemaining)
+
+	return timeString
+}
+
+func updateTrackProgressGauge(uiConfig *Config, progress int) {
+	newProgressGuage := createTrackProgressGauge(uiConfig, progress)
+
+	tui.Body.Rows[1].Cols[0] = tui.NewCol(progressGuageWidth, 0, newProgressGuage)
+	tui.Body.Align()
+	tui.Render(tui.Body)
 }
