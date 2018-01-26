@@ -26,24 +26,37 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 	var playingState string
 
 	if deviceInfo.IsPlaying {
+		// Stop the previous tickers if they exist
 		if uiConfig.progressTicker != nil {
 			uiConfig.progressTicker.Stop()
 		}
+		if uiConfig.visualsTicker != nil {
+			uiConfig.visualsTicker.Stop()
+		}
+
+		// Adjust this according to how fast you'd want the visuals to update.
+		visualsTickTime := time.Duration(int(uiConfig.currentTrack.BPM / 60 / 4 * 1000))
+
 		playingState = playingText
 		uiConfig.progressTicker = time.NewTicker(time.Millisecond * 1000)
+		uiConfig.visualsTicker = time.NewTicker(time.Duration(visualsTickTime * time.Microsecond * 1000))
 		uiConfig.timeElapsedFromTickerStart = 0
+
 		go startTrackProgressTicker(uiConfig, trackInfo, deviceInfo)
-		// Skipping or going back a track always plays the track as well, so we will
-		// only reach this else if a pause choice is chosen.
+		go startVisualsTicker(uiConfig)
 	} else {
 		playingState = pausedText
 		if uiConfig.progressTicker != nil {
 			uiConfig.progressTicker.Stop()
 		}
+
+		if uiConfig.visualsTicker != nil {
+			uiConfig.visualsTicker.Stop()
+		}
 	}
 
-	progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
-	trackProgressTime := createTrackProgressTime(uiConfig, progressInSeconds)
+	// progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
+	// trackProgressTime := createTrackProgressTime(uiConfig, progressInSeconds)
 
 	currentlyPlayingUI := tui.NewList()
 	currentlyPlayingUI.Border = true
@@ -58,7 +71,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		trackInfo.Artists,
 		newLine + newLine,
 		playingState,
-		trackProgressTime,
+		// trackProgressTime,
 	}
 	currentlyPlayingUI.ItemFgColor = themeTextFgColor
 
@@ -124,9 +137,16 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		}
 		progressInSeconds := (uiConfig.timeElapsedFromTickerStart + int(deviceInfo.ProgressMs)) / 1000
 		updateTrackProgressGauge(uiConfig, progressInSeconds)
-		updatePlayingAnimationUI(progressInSeconds)
 
+		// TODO: Remove the current track time from the currently playing component so it doesn't
+		// interfere with visuals ticker getting reset over and over.
 		// Update currently playing every tick for the timer to work
-		updateCurrentlyPlayingUI(uiConfig)
+		// updateCurrentlyPlayingUI(uiConfig)
+	}
+}
+
+func startVisualsTicker(uiConfig *Config) {
+	for _ = range uiConfig.visualsTicker.C {
+		updatePlayingAnimationUI()
 	}
 }

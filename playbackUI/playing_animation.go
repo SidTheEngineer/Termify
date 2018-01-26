@@ -23,7 +23,7 @@ var barLabels = []string{
 	"", "", "",
 }
 
-func createPlayingAnimationUI(currentTime int) *tui.BarChart {
+func createPlayingAnimationUI() *tui.BarChart {
 	bars := tui.NewBarChart()
 	bars.Data = rand.Perm(100)
 	bars.DataLabels = barLabels
@@ -34,8 +34,8 @@ func createPlayingAnimationUI(currentTime int) *tui.BarChart {
 	return bars
 }
 
-func updatePlayingAnimationUI(currentTime int) {
-	newPlayingAnimationUI := createPlayingAnimationUI(currentTime)
+func updatePlayingAnimationUI() {
+	newPlayingAnimationUI := createPlayingAnimationUI()
 
 	tui.Body.Rows[3].Cols[0] = tui.NewCol(playingAnimationUIWidth, 0, newPlayingAnimationUI)
 	tui.Body.Align()

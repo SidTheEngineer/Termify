@@ -52,9 +52,6 @@ func attachControlsHandlers(uiConfig *Config) {
 	// Unfortunately, these have to be hardcoded. Handle() breaks when trying to
 	// attach in a loop.
 	tui.Handle(playKey, func(e tui.Event) {
-		if uiConfig.currentDevice.IsPlaying {
-			return
-		}
 		req := playbackChoices[0].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[0].SendAPIRequest(req)
 
@@ -67,9 +64,6 @@ func attachControlsHandlers(uiConfig *Config) {
 	})
 
 	tui.Handle(pauseKey, func(e tui.Event) {
-		if !uiConfig.currentDevice.IsPlaying {
-			return
-		}
 		req := playbackChoices[1].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[1].SendAPIRequest(req)
 

@@ -27,6 +27,7 @@ type Config struct {
 	AccessToken                auth.AccessToken
 	context                    map[string]interface{}
 	progressTicker             *time.Ticker
+	visualsTicker              *time.Ticker
 	timeElapsedFromTickerStart int
 	currentTrack               Track
 	currentDevice              Device

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	updateUIWaitTime = 250
+	updateUIWaitTime = 150
 	playKey          = "sys/kbd/1"
 	pauseKey         = "sys/kbd/2"
 	prevKey          = "sys/kbd/3"
@@ -59,7 +59,7 @@ func (p Playback) Render(uiConfig *Config) {
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
 	trackProgressGuage := createTrackProgressGauge(uiConfig, progressInSeconds)
 	volumeGauge := createVolumeGauge(uiConfig)
-	playingAnimationUI := createPlayingAnimationUI(progressInSeconds)
+	playingAnimationUI := createPlayingAnimationUI()
 
 	if tui.Body != nil {
 		util.ResetTerminal()
