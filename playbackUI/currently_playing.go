@@ -35,7 +35,7 @@ func createCurrentlyPlayingUI(uiConfig *Config, trackInfo Track, deviceInfo Devi
 		}
 
 		// Adjust this according to how fast you'd want the visuals to update.
-		visualsTickTime := time.Duration(int(uiConfig.currentTrack.BPM / 60 / 4 * 1000))
+		visualsTickTime := time.Duration(int(1000 / (uiConfig.currentTrack.BPM / 60)))
 
 		playingState = playingText
 		uiConfig.progressTicker = time.NewTicker(time.Millisecond * 1000)
@@ -147,6 +147,6 @@ func startTrackProgressTicker(uiConfig *Config, trackInfo Track, deviceInfo Devi
 
 func startVisualsTicker(uiConfig *Config) {
 	for _ = range uiConfig.visualsTicker.C {
-		updatePlayingAnimationUI()
+		updatePlayingAnimationUI(uiConfig)
 	}
 }

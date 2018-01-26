@@ -2,12 +2,13 @@ package playbackUI
 
 import (
 	"math/rand"
+	"strconv"
 
 	tui "github.com/gizak/termui"
 )
 
 const (
-	playingAnimationUIHeight = 10
+	playingAnimationUIHeight = 12
 	playingAnimationUIWidth  = 12
 )
 
@@ -23,19 +24,20 @@ var barLabels = []string{
 	"", "", "",
 }
 
-func createPlayingAnimationUI() *tui.BarChart {
+func createPlayingAnimationUI(uiConfig *Config) *tui.BarChart {
 	bars := tui.NewBarChart()
 	bars.Data = rand.Perm(100)
 	bars.DataLabels = barLabels
 	bars.Height = playingAnimationUIHeight
 	bars.BarColor = themeBarColor
 	bars.BorderFg = themeBorderFg
+	bars.BorderLabel = strconv.Itoa(int(uiConfig.currentTrack.BPM)) + " BPM"
 
 	return bars
 }
 
-func updatePlayingAnimationUI() {
-	newPlayingAnimationUI := createPlayingAnimationUI()
+func updatePlayingAnimationUI(uiConfig *Config) {
+	newPlayingAnimationUI := createPlayingAnimationUI(uiConfig)
 
 	tui.Body.Rows[3].Cols[0] = tui.NewCol(playingAnimationUIWidth, 0, newPlayingAnimationUI)
 	tui.Body.Align()

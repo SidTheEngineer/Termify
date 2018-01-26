@@ -59,7 +59,7 @@ func (p Playback) Render(uiConfig *Config) {
 	currentlyPlayingUI := createCurrentlyPlayingUI(uiConfig, trackInfo, deviceInfo)
 	trackProgressGuage := createTrackProgressGauge(uiConfig, progressInSeconds)
 	volumeGauge := createVolumeGauge(uiConfig)
-	playingAnimationUI := createPlayingAnimationUI()
+	playingAnimationUI := createPlayingAnimationUI(uiConfig)
 
 	if tui.Body != nil {
 		util.ResetTerminal()
