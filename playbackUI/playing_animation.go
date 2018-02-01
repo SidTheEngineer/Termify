@@ -29,7 +29,14 @@ func createPlayingAnimationUI(uiConfig *Config) *tui.BarChart {
 	bars.Data = rand.Perm(100)
 	bars.DataLabels = barLabels
 	bars.Height = playingAnimationUIHeight
-	bars.BarColor = themeBarColor
+
+	if uiConfig.currentTrack.BPM > 120 {
+		bars.BarColor = tui.ColorGreen
+	} else {
+		bars.BarColor = tui.ColorBlue
+	}
+
+	// bars.BarColor = themeBarColor
 	bars.BorderFg = themeBorderFg
 	bars.BorderLabel = strconv.Itoa(int(uiConfig.currentTrack.BPM)) + " BPM"
 

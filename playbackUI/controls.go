@@ -54,7 +54,8 @@ func attachControlsHandlers(uiConfig *Config) {
 	tui.Handle(playKey, func(e tui.Event) {
 		req := playbackChoices[0].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[0].SendAPIRequest(req)
-
+		// TODO: If res status code is not 204, we need to display some message
+		// to the user about what happened (message box UI
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
 			// playback information time to update.
@@ -66,7 +67,8 @@ func attachControlsHandlers(uiConfig *Config) {
 	tui.Handle(pauseKey, func(e tui.Event) {
 		req := playbackChoices[1].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[1].SendAPIRequest(req)
-
+		// TODO: If res status code is not 204, we need to display some message
+		// to the user about what happened (message box UI
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
 			// playback information time to update.
@@ -78,6 +80,8 @@ func attachControlsHandlers(uiConfig *Config) {
 	tui.Handle(prevKey, func(e tui.Event) {
 		req := playbackChoices[2].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[2].SendAPIRequest(req)
+		// TODO: If res status code is not 204, we need to display some message
+		// to the user about what happened (message box UI
 		// Successful skips/backs return a 204 (no content)
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
@@ -90,6 +94,8 @@ func attachControlsHandlers(uiConfig *Config) {
 	tui.Handle(nextKey, func(e tui.Event) {
 		req := playbackChoices[3].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[3].SendAPIRequest(req)
+		// TODO: If res status code is not 204, we need to display some message
+		// to the user about what happened (message box UI)
 		// Successful skips/backs return a 204 (no content)
 		if res.StatusCode == 204 {
 			// This is kind of hacky, but  wee need to wait here to give Spotify
