@@ -30,13 +30,14 @@ func createPlayingAnimationUI(uiConfig *Config) *tui.BarChart {
 	bars.DataLabels = barLabels
 	bars.Height = playingAnimationUIHeight
 
-	if uiConfig.currentTrack.BPM > 120 {
-		bars.BarColor = tui.ColorGreen
-	} else {
-		bars.BarColor = tui.ColorBlue
-	}
+	// TODO: Change bar color based on BPM? (or some other track feature attribute?)
+	// if uiConfig.currentTrack.BPM > 120 {
+	// 	bars.BarColor = tui.ColorGreen
+	// } else {
+	// 	bars.BarColor = tui.ColorBlue
+	// }
 
-	// bars.BarColor = themeBarColor
+	bars.BarColor = themeBarColor
 	bars.BorderFg = themeBorderFg
 	bars.BorderLabel = strconv.Itoa(int(uiConfig.currentTrack.BPM)) + " BPM"
 

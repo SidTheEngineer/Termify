@@ -60,6 +60,7 @@ func (p Playback) Render(uiConfig *Config) {
 	trackProgressGuage := createTrackProgressGauge(uiConfig, progressInSeconds)
 	volumeGauge := createVolumeGauge(uiConfig)
 	playingAnimationUI := createPlayingAnimationUI(uiConfig)
+	messageBox := createMessageBox(uiConfig, "this is a test")
 
 	if tui.Body != nil {
 		util.ResetTerminal()
@@ -80,6 +81,9 @@ func (p Playback) Render(uiConfig *Config) {
 		),
 		tui.NewRow(
 			tui.NewCol(playingAnimationUIWidth, 0, playingAnimationUI),
+		),
+		tui.NewRow(
+			tui.NewCol(messageBoxWidth, 0, messageBox),
 		),
 	)
 
