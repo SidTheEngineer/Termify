@@ -60,7 +60,7 @@ func (p Playback) Render(uiConfig *Config) {
 	trackProgressGuage := createTrackProgressGauge(uiConfig, progressInSeconds)
 	volumeGauge := createVolumeGauge(uiConfig)
 	playingAnimationUI := createPlayingAnimationUI(uiConfig)
-	messageBox := createMessageBox(uiConfig, "this is a test")
+	messageBox := createMessageBox(uiConfig, "")
 
 	if tui.Body != nil {
 		util.ResetTerminal()

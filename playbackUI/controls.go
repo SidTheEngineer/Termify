@@ -17,10 +17,10 @@ const (
 	nextChoiceNameText       = "[ 4 ] - Next"
 	volumeDownChoiceNameText = "[ 5 ] - Vol. Down"
 	volumeUpChoiceNameText   = "[ 6 ] - Vol. Up"
-	playSuccessText          = "Play req sent"
-	pauseSuccessText         = "Pause req sent"
-	playErrorText            = "ERROR: Failed to send play req"
-	pauseErrorText           = "ERROR: Failed to send pause req"
+	successText              = "Successful request (204)"
+	deviceUnavailableText    = "Device temporarily unavailable, try again in 5 seconds (202)"
+	deviceNotFoundText       = "Device not found (404)"
+	userNotPremiumText       = "User is not premium, cannot make request (403)"
 )
 
 func createControls(uiConfig *Config) *tui.List {
@@ -58,53 +58,25 @@ func attachControlsHandlers(uiConfig *Config) {
 	tui.Handle(playKey, func(e tui.Event) {
 		req := playbackChoices[0].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[0].SendAPIRequest(req)
-		if res.StatusCode == 204 {
-			// This is kind of hacky, but  wee need to wait here to give Spotify
-			// playback information time to update.
-			time.Sleep(updateUIWaitTime * time.Millisecond)
-			updateCurrentlyPlayingUI(uiConfig)
-			updateMessageBox(uiConfig, playSuccessText)
-		} else {
-			// TODO: Handle/display errors with message box
-			updateMessageBox(uiConfig, playErrorText)
-		}
+		processChoiceResponse(uiConfig, res.StatusCode)
 	})
 
 	tui.Handle(pauseKey, func(e tui.Event) {
 		req := playbackChoices[1].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[1].SendAPIRequest(req)
-		if res.StatusCode == 204 {
-			// This is kind of hacky, but  wee need to wait here to give Spotify
-			// playback information time to update.
-			time.Sleep(updateUIWaitTime * time.Millisecond)
-			updateCurrentlyPlayingUI(uiConfig)
-			updateMessageBox(uiConfig, pauseSuccessText)
-		} else {
-			// TODO: Handle/display errors with the message box
-			updateMessageBox(uiConfig, pauseErrorText)
-		}
+		processChoiceResponse(uiConfig, res.StatusCode)
 	})
 
 	tui.Handle(prevKey, func(e tui.Event) {
 		req := playbackChoices[2].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[2].SendAPIRequest(req)
-		if res.StatusCode == 204 {
-			// This is kind of hacky, but  wee need to wait here to give Spotify
-			// playback information time to update.
-			time.Sleep(updateUIWaitTime * time.Millisecond)
-			updateCurrentlyPlayingUI(uiConfig)
-		}
+		processChoiceResponse(uiConfig, res.StatusCode)
 	})
 
 	tui.Handle(nextKey, func(e tui.Event) {
 		req := playbackChoices[3].CreateAPIRequest(uiConfig.AccessToken)
 		res := playbackChoices[3].SendAPIRequest(req)
-		if res.StatusCode == 204 {
-			// This is kind of hacky, but  wee need to wait here to give Spotify
-			// playback information time to update.
-			time.Sleep(updateUIWaitTime * time.Millisecond)
-			updateCurrentlyPlayingUI(uiConfig)
-		}
+		processChoiceResponse(uiConfig, res.StatusCode)
 	})
 
 	tui.Handle(volDownKey, func(e tui.Event) {
@@ -130,6 +102,23 @@ func attachControlsHandlers(uiConfig *Config) {
 			uiConfig.currentDevice.Volume = uiConfig.currentDevice.Volume + 10
 		}
 	})
+}
+
+func processChoiceResponse(uiConfig *Config, statusCode int) {
+	switch statusCode {
+	case 204:
+		// This is kind of hacky, but  wee need to wait here to give Spotify
+		// playback information time to update.
+		time.Sleep(updateUIWaitTime * time.Millisecond)
+		updateCurrentlyPlayingUI(uiConfig)
+		updateMessageBox(uiConfig, successText)
+	case 202:
+		updateMessageBox(uiConfig, deviceUnavailableText)
+	case 403:
+		updateMessageBox(uiConfig, userNotPremiumText)
+	case 404:
+		updateMessageBox(uiConfig, deviceNotFoundText)
+	}
 }
 
 // https://beta.developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
