@@ -17,7 +17,7 @@ func getDeviceInformationFromJSON(uiConfig *Config, context map[string]interface
 			DeviceType: "N/A",
 			ProgressMs: 0.0,
 			IsPlaying:  false,
-			Volume:     0.0,
+			Volume:     100.0,
 		}
 	}
 	deviceName := context["device"].(map[string]interface{})["name"].(string)
@@ -25,8 +25,8 @@ func getDeviceInformationFromJSON(uiConfig *Config, context map[string]interface
 	progressMs := context["progress_ms"].(float64)
 	isPlaying := context["is_playing"].(bool)
 
-	deviceVolume := 0.0 // default when nil from Spotify
-	deviceID := "N/A"   // default when nil form Spotify
+	deviceVolume := 100.0 // default when nil from Spotify
+	deviceID := "N/A"     // default when nil form Spotify
 
 	spotifyDeviceVolume := context["device"].(map[string]interface{})["volume_percent"]
 	if spotifyDeviceVolume != nil {

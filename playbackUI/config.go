@@ -21,7 +21,7 @@ const (
 )
 
 // Config will hold all of the meta data about the current state of
-// Termify, such as the currentView, history stack, etc.
+// Termify.
 type Config struct {
 	currentView                View
 	AccessToken                auth.AccessToken
