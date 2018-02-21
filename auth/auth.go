@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/SidTheEngineer/Termify/util"
-	"github.com/boltdb/bolt"
 	"github.com/skratchdot/open-golang/open"
 )
 
@@ -141,18 +140,6 @@ func TokenIsExpired(timeTokenCached, expiresIn string) bool {
 	secsTilExpire, _ := strconv.Atoi(expiresIn)
 
 	return int(time.Now().Unix())-cacheTime > secsTilExpire
-}
-
-// CacheToken stores appropriate spotify AccessToken information in
-// the bolt database
-func CacheToken(tx *bolt.Tx, token AccessToken) {
-	authBucket := tx.Bucket([]byte("auth"))
-	authBucket.Put([]byte(accessTokenText), []byte(token.Token))
-	authBucket.Put([]byte(tokenTypeText), []byte(token.Type))
-	authBucket.Put([]byte(tokenScopeText), []byte(token.Scope))
-	authBucket.Put([]byte(refreshTokenText), []byte(token.RefreshToken))
-	authBucket.Put([]byte(tokenExpiresInText), []byte(strconv.Itoa(token.ExpiresIn)))
-	authBucket.Put([]byte(timeTokenCachedText), []byte(strconv.FormatInt(int64(time.Now().Unix()), 10)))
 }
 
 func createSpotifyAuthURL() string {

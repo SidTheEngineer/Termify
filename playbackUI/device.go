@@ -9,7 +9,6 @@ type Device struct {
 }
 
 func getDeviceInformationFromJSON(uiConfig *Config, context map[string]interface{}) Device {
-	// TODO: This needs to be fixed, it will break the UI when switching songs/updating.
 	if context["device"] == nil {
 		return Device{
 			Name:       "No device currently active",
