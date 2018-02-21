@@ -82,7 +82,7 @@ func main() {
 	tdb.Start()
 	defer tdb.Close()
 
-	isLoggedIn := db.IsLoggedIn(&uiConfig, &authConfig)
+	isLoggedIn := tdb.IsLoggedIn(&uiConfig, &authConfig)
 
 	if !isLoggedIn {
 		if err := tui.Init(); err != nil {
