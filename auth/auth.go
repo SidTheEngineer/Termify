@@ -183,10 +183,26 @@ func addTokenHeaders(req *http.Request) {
 	clientID, clientSecret := GetClientIDAndSecret()
 
 	if clientID == "" || clientSecret == "" {
+		// TODO: Instead of breaking the application, allow the user to enter clientID and client
+		// secret. Another possibility is switching to implicit-grant flow, which would require
+		// a little bit more work (issue #18).
+		// More info: https://developer.spotify.com/web-api/authorization-guide/#implicit_grant_flow
+
 		log.Fatal("\n\nEnvironment variable SPOTIFY_CLIENT or SPOTIFY_SECRET not set.")
 	}
 
 	req.Header.Add("Authorization", "Basic "+b64.StdEncoding.EncodeToString([]byte(clientID+":"+clientSecret)))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept", "application/json")
+}
+
+func scanClientIDAndSecret() (string, string) {
+	var clientID, clientSecret string
+	fmt.Println("No Spotify client ID/client secret environment variables set.")
+	fmt.Print("Enter Spotify client ID: ")
+	fmt.Scanln(&clientID)
+	fmt.Print("Enter Spotiy client secret: ")
+	fmt.Scanln(&clientSecret)
+
+	return clientID, clientSecret
 }
